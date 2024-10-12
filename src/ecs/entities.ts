@@ -77,7 +77,7 @@ export class Ball extends Entity {
       new Position(x, y),
       new Size(15, 15),
       new Collides(),
-      new Velocity(10, 10),
+      new Velocity(1, 1),
       new Sprite(SPRITES.BALL),
     ];
   }

@@ -1,4 +1,4 @@
-import { Position, Size, Sprite } from "./components";
+import { Position, Size, Sprite, Velocity } from "./components";
 import { Entity } from "./entities";
 
 export const drawEntities = (
@@ -39,4 +39,35 @@ export const drawEntities = (
         context.fillText(entity.id, position.x, position.y + 16);
       }
     });
+};
+
+export const moveEntities = (
+  entities: Entity[],
+  worldWith: number,
+  worldHeight: number,
+) => {
+  entities.forEach((entity) => {
+    const position = entity.components.find(
+      (component) => component instanceof Position,
+    );
+    const velocity = entity.components.find(
+      (component) => component instanceof Velocity,
+    );
+
+    if (position && velocity) {
+      if (position.x + velocity.x < 0 || position.x + velocity.x > worldWith) {
+        velocity.x *= -1;
+      }
+
+      if (
+        position.y + velocity.y < 0 ||
+        position.y + velocity.y > worldHeight
+      ) {
+        velocity.y *= -1;
+      }
+
+      position.x += velocity.x;
+      position.y += velocity.y;
+    }
+  });
 };

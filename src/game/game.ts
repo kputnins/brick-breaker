@@ -1,4 +1,11 @@
-import { Ball, Brick, drawEntities, Entity, Paddle } from "../ecs";
+import {
+  Ball,
+  Brick,
+  drawEntities,
+  Entity,
+  moveEntities,
+  Paddle,
+} from "../ecs";
 
 declare global {
   interface Window {
@@ -184,6 +191,13 @@ export class Game {
 
   private static update() {
     this.state.tick++;
+
+    moveEntities(
+      this.entities,
+      this.canvas.htmlElement.width,
+      this.canvas.htmlElement.height,
+    );
+
     this.clearCanvas();
     drawEntities(this.entities, this.canvas.context);
 
