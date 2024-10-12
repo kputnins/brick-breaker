@@ -10,16 +10,43 @@
     <body>
         <div id="app">
             <canvas id="canvas"></canvas>
-            <div>
+
+            <div id="controls" class="flex justify-content-center gap-16 p-8">
                 <button id="new-game" type="button">New game</button>
                 <button id="options" type="button">Options</button>
+                <button id="info" type="button">Info</button>
             </div>
-            <div>
-                <h1>Brick Breaker</h1>
-                <p>Built with TypeScript, Vite and Deno 2.0</p>
-                <a href="#" target="_blank"> Link to repo </a>
-            </div>
+
+            <dialog class="p-32">
+                <div
+                    class="flex justify-content-space-between align-items-center size-w-512 mb-16"
+                >
+                    <h1>Brick Breaker</h1>
+                    <button autofocus>Close</button>
+                </div>
+                <div>
+                    <p>Built with TypeScript, Vite and Deno 2.0</p>
+                    <a href="#" target="_blank"> Link to repo </a>
+                </div>
+            </dialog>
         </div>
+
+        <!-- Modal control -->
+        <script>
+            const dialog = document.querySelector("dialog");
+            const showButton = document.getElementById("info");
+            const closeButton = document.querySelector("dialog button");
+
+            showButton.addEventListener("click", () => {
+                dialog.showModal();
+            });
+
+            closeButton.addEventListener("click", () => {
+                dialog.close();
+            });
+
+            dialog.showModal();
+        </script>
 
         <script type="module" src="/src/main.ts"></script>
     </body>
