@@ -20,14 +20,12 @@ type Controls = {
 };
 
 type Player = {
-  name: string;
   score: number;
   lives: number;
   position: { x: number; y: number };
   velocity: { x: number; y: number };
   acceleration: { x: number; y: number };
   size: { width: number; height: number };
-  sprite: HTMLImageElement;
 };
 
 type GameState = {
@@ -36,17 +34,13 @@ type GameState = {
 };
 
 class Game {
-  private canvas!: Canvas;
-  private controls!: Controls;
-  private state!: GameState;
+  private static canvas: Canvas;
+  private static controls: Controls;
+  private static state: GameState;
+  private static palyerName: string = "Player";
+  private static playerSprite: HTMLImageElement;
 
-  constructor() {
-    this.initControls();
-    this.initCanvas();
-    this.initState();
-  }
-
-  initControls() {
+  private static initControls() {
     const panel = document.getElementById("controls") as HTMLDivElement | null;
     const newGameButton = document.getElementById(
       "new-game-button",
@@ -76,7 +70,7 @@ class Game {
     this.initInfoDialog();
   }
 
-  initInfoDialog() {
+  private static initInfoDialog() {
     const dialog = document.getElementById(
       "info-dialog",
     ) as HTMLDialogElement | null;
@@ -103,7 +97,7 @@ class Game {
     });
   }
 
-  initCanvas() {
+  private static initCanvas() {
     const canvas = document.getElementById(
       "canvas",
     ) as HTMLCanvasElement | null;
@@ -123,7 +117,7 @@ class Game {
     this.handleResize();
   }
 
-  handleResize() {
+  private static handleResize() {
     const MAGIX_MISSING_PIXELS = 6;
     this.canvas.htmlElement.width = window.innerWidth;
     this.canvas.htmlElement.height =
@@ -132,26 +126,38 @@ class Game {
       MAGIX_MISSING_PIXELS;
   }
 
-  initState() {
+  private static initState() {
     this.state = {
       tick: 0,
       player: {
-        name: "Player",
         score: 0,
         lives: 3,
         position: { x: 0, y: 0 },
         velocity: { x: 0, y: 0 },
         acceleration: { x: 0, y: 0 },
         size: { width: 32, height: 32 },
-        sprite: new Image(),
       },
     };
+  }
+
+  private static update() {
+    this.state.tick++;
+    // this.clearCanvas();
+    // this.drawPlayer();
+    requestAnimationFrame(this.update.bind(this));
+  }
+
+  public static startGame() {
+    this.initControls();
+    this.initCanvas();
+    this.initState();
+    this.update();
   }
 }
 
 function main() {
-  const game = new Game();
-  window.game = game;
+  Game.startGame();
+  window.game = Game;
 }
 
 main();
