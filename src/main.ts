@@ -33,12 +33,18 @@ type GameState = {
   player: Player;
 };
 
+type Sprites = {
+  player: HTMLImageElement;
+  block: HTMLImageElement;
+  ball: HTMLImageElement;
+};
+
 class Game {
   private static canvas: Canvas;
   private static controls: Controls;
   private static state: GameState;
   private static palyerName: string = "Player";
-  private static playerSprite: HTMLImageElement;
+  private static sprites: Sprites;
 
   private static initControls() {
     const panel = document.getElementById("controls") as HTMLDivElement | null;
@@ -140,10 +146,19 @@ class Game {
     };
   }
 
+  private static clearCanvas() {
+    this.canvas.context.fillStyle = "black";
+    this.canvas.context.fillRect(
+      0,
+      0,
+      this.canvas.htmlElement.width,
+      this.canvas.htmlElement.height,
+    );
+  }
+
   private static update() {
     this.state.tick++;
-    // this.clearCanvas();
-    // this.drawPlayer();
+    this.clearCanvas();
     requestAnimationFrame(this.update.bind(this));
   }
 
