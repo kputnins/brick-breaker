@@ -75,9 +75,10 @@ export class Ball extends Entity {
     super(ENTITY.BALL);
     this.components = [
       new Position(x, y),
-      new Size(10, 10),
+      new Size(15, 15),
       new Collides(),
       new Velocity(10, 10),
+      new Sprite(SPRITES.BALL),
     ];
   }
 }

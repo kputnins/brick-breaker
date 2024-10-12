@@ -1,4 +1,4 @@
-import { Brick, drawEntities, Entity, Paddle } from "../ecs";
+import { Ball, Brick, drawEntities, Entity, Paddle } from "../ecs";
 
 declare global {
   interface Window {
@@ -163,6 +163,15 @@ export class Game {
     this.entities.push(paddle);
   }
 
+  private static initBall() {
+    const ball = new Ball(
+      this.canvas.htmlElement.width / 2,
+      this.canvas.htmlElement.height / 2,
+    );
+
+    this.entities.push(ball);
+  }
+
   private static clearCanvas() {
     this.canvas.context.fillStyle = "black";
     this.canvas.context.fillRect(
@@ -199,6 +208,7 @@ export class Game {
     this.initState();
     this.initLevel(1);
     this.initPaddle();
+    this.initBall();
     this.update();
   }
 }
