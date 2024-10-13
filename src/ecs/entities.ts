@@ -56,6 +56,7 @@ export class Paddle extends Entity {
     this.components.set(COMPONENT.POSITION, new Position(x, y));
     this.components.set(COMPONENT.SIZE, new Size(100, 20));
     this.components.set(COMPONENT.COLLIDES, new Collides());
+    this.components.set(COMPONENT.CLAMP_TO_EDGES, new Collides());
     this.components.set(COMPONENT.VELOCITY, new Velocity(0, 0));
     this.components.set(COMPONENT.SPRITE, new Sprite(SPRITES.PADDLE));
   }

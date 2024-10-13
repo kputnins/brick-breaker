@@ -1,12 +1,17 @@
 import {
   Ball,
   Brick,
+  COMPONENT,
   drawEntities,
   entities,
   Entity,
   moveEntities,
   Paddle,
+  Position,
+  Size,
+  Velocity,
 } from "../ecs";
+import { isEntityTouchingWorldEdges } from "../utils";
 
 declare global {
   interface Window {
@@ -39,6 +44,8 @@ type GameState = {
   tick: number;
   score: number;
   lives: number;
+  paddleSpeed: number;
+  ballSpeed: number;
 };
 
 type Sprites = {
@@ -186,6 +193,8 @@ export class Game {
       tick: 0,
       score: 0,
       lives: 3,
+      paddleSpeed: 6,
+      ballSpeed: 3,
     };
   }
 
@@ -237,6 +246,29 @@ export class Game {
     }
 
     this.state.tick++;
+
+    // Update paddle velocity if the controls are pressed
+    this.entities.forEach((entity) => {
+      if (entity instanceof Paddle) {
+        const velocity = entity.components.get(COMPONENT.VELOCITY) as Velocity | undefined;
+        const position = entity.components.get(COMPONENT.POSITION) as Position | undefined;
+        const size = entity.components.get(COMPONENT.SIZE) as Size | undefined;
+
+        if (!velocity || !position || !size) throw new Error("Paddle missing velocity, position, or size.");
+
+        velocity.x = 0;
+
+        if (this.controls.left && this.controls.right) return;
+
+        if (this.controls.left && position.x > 0) {
+          velocity.x = -this.state.paddleSpeed;
+        }
+
+        if (this.controls.right && position.x + size.width < this.canvas.htmlElement.width) {
+          velocity.x = this.state.paddleSpeed;
+        }
+      }
+    });
 
     moveEntities(
       this.entities,
