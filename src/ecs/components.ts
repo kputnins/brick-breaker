@@ -1,3 +1,15 @@
+export const COMPONENT = {
+  POSITION: "POSITION",
+  SIZE: "SIZE",
+  COLLIDES: "COLLIDES",
+  BOUNCES_FROM_EDGES: "BOUNCES_FROM_EDGES",
+  SPRITE: "SPRITE",
+  HEALTH: "HEALTH",
+  VELOCITY: "VELOCITY",
+} as const;
+
+export type COMPONENT = (typeof COMPONENT)[keyof typeof COMPONENT];
+
 export class Component {}
 
 export class Position extends Component {
@@ -24,6 +36,10 @@ export class Size extends Component {
 
 export class Collides extends Component {
   public collides: boolean = true;
+}
+
+export class BouncesFromEdges extends Component {
+  public bounces: boolean = true;
 }
 
 export class Sprite extends Component {

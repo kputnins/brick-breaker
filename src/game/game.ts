@@ -2,6 +2,7 @@ import {
   Ball,
   Brick,
   drawEntities,
+  entities,
   Entity,
   moveEntities,
   Paddle,
@@ -14,11 +15,11 @@ declare global {
 }
 
 const RESOLUTIONS = {
-  "480p": { width: 640, height: 480 },
-  "720p": { width: 1280, height: 720 },
-  "1080p": { width: 1920, height: 1080 },
-  "1440p": { width: 2560, height: 1440 },
-  "2160p": { width: 3840, height: 2160 },
+  "480p": { width: 640, height: 480, scale: 0.5 },
+  "720p": { width: 1280, height: 720, scale: 1 },
+  "1080p": { width: 1920, height: 1080, scale: 1.5 },
+  "1440p": { width: 2560, height: 1440, scale: 2 },
+  "2160p": { width: 3840, height: 2160, scale: 3 },
 } as const;
 
 type Resolution = keyof typeof RESOLUTIONS;
@@ -50,7 +51,7 @@ type Sprites = {
 export class Game {
   // HTML elements
   private static canvas: Canvas;
-  private static controls: Controls;
+  private static controls: Controls; // TODO check if field requiered
   // Game state
   private static state: GameState;
   // Global values
@@ -60,7 +61,7 @@ export class Game {
   // Resources
   private static sprites: Sprites;
   // Entities
-  private static entities: Entity[] = [];
+  private static entities: Map<string, Entity> = entities;
 
   private static initControls() {
     const panel = document.getElementById("controls") as HTMLDivElement | null;
@@ -205,7 +206,7 @@ export class Game {
     switch (level) {
       default:
       case 1:
-        this.entities = Array.from({ length: 10 }, (_, i) => {
+        Array.from({ length: 10 }, (_, i) => {
           const row = Math.floor(i / 2);
           const col = i % 2;
           return new Brick(
@@ -219,21 +220,17 @@ export class Game {
   }
 
   private static initPaddle() {
-    const paddle = new Paddle(
+    new Paddle(
       this.canvas.htmlElement.width / 2,
       this.canvas.htmlElement.height - 50,
     );
-
-    this.entities.push(paddle);
   }
 
   private static initBall() {
-    const ball = new Ball(
+    new Ball(
       this.canvas.htmlElement.width / 2,
       this.canvas.htmlElement.height / 2,
     );
-
-    this.entities.push(ball);
   }
 
   private static clearCanvas() {
@@ -256,7 +253,9 @@ export class Game {
     );
 
     this.clearCanvas();
-    drawEntities(this.entities, this.canvas.context);
+    drawEntities(this.entities, this.canvas.context,
+      this.canvas.htmlElement.width,
+      this.canvas.htmlElement.height,);
 
     // Draw the current tick in the top left corner
     this.canvas.context.fillStyle = "white";

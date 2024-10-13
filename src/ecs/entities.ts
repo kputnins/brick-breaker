@@ -1,5 +1,6 @@
 import {
   Collides,
+  COMPONENT,
   Component,
   Health,
   Position,
@@ -30,12 +31,11 @@ export const ENTITY = {
 export class Entity {
   public id: string;
   type: (typeof ENTITY)[keyof typeof ENTITY];
-  public components: Component[] = [];
+  public components: Map<COMPONENT, Component> = new Map();
 
   constructor(type: (typeof ENTITY)[keyof typeof ENTITY]) {
     this.type = type;
     this.id = Math.random().toString(36).slice(2, 9);
-
     entities.set(this.id, this);
   }
 
@@ -45,68 +45,50 @@ export class Entity {
 }
 
 export class Player extends Entity {
-  public static components: Component[] = [new Position(0, 0), new Health(100)];
-
   constructor() {
     super(ENTITY.PLAYER);
-    entities.set(this.id, this);
   }
 }
 
 export class Paddle extends Entity {
-  public components: Component[];
-
   constructor(x: number, y: number) {
     super(ENTITY.PADDLE);
-    this.components = [
-      new Position(x, y),
-      new Size(100, 20),
-      new Collides(),
-      new Velocity(0, 0),
-      new Sprite(SPRITES.PADDLE),
-    ];
+    this.components.set(COMPONENT.POSITION, new Position(x, y));
+    this.components.set(COMPONENT.SIZE, new Size(100, 20));
+    this.components.set(COMPONENT.COLLIDES, new Collides());
+    this.components.set(COMPONENT.VELOCITY, new Velocity(0, 0));
+    this.components.set(COMPONENT.SPRITE, new Sprite(SPRITES.PADDLE));
   }
 }
 
 export class Ball extends Entity {
-  public components: Component[];
-
   constructor(x: number, y: number) {
     super(ENTITY.BALL);
-    this.components = [
-      new Position(x, y),
-      new Size(15, 15),
-      new Collides(),
-      new Velocity(1, 1),
-      new Sprite(SPRITES.BALL),
-    ];
+    this.components.set(COMPONENT.POSITION, new Position(x, y));
+    this.components.set(COMPONENT.SIZE, new Size(15, 15));
+    this.components.set(COMPONENT.COLLIDES, new Collides());
+    this.components.set(COMPONENT.BOUNCES_FROM_EDGES, new Collides());
+    this.components.set(COMPONENT.VELOCITY, new Velocity(3, -1));
+    this.components.set(COMPONENT.SPRITE, new Sprite(SPRITES.BALL));
   }
 }
 
 export class Brick extends Entity {
-  public components: Component[];
-
   constructor(x: number, y: number) {
     super(ENTITY.BRICK);
-    this.components = [
-      new Position(x, y),
-      new Size(100, 20),
-      new Collides(),
-      new Health(100),
-      new Sprite(SPRITES.BRICK),
-    ];
+    this.components.set(COMPONENT.POSITION, new Position(x, y));
+    this.components.set(COMPONENT.SIZE, new Size(100, 20));
+    this.components.set(COMPONENT.COLLIDES, new Collides());
+    this.components.set(COMPONENT.HEALTH, new Health(100));
+    this.components.set(COMPONENT.SPRITE, new Sprite(SPRITES.BRICK));
   }
 }
 
 export class Wall extends Entity {
-  public components: Component[];
-
   constructor(x: number, y: number, width: number, height: number) {
     super(ENTITY.WALL);
-    this.components = [
-      new Position(x, y),
-      new Size(width, height),
-      new Collides(),
-    ];
+    this.components.set(COMPONENT.POSITION, new Position(x, y));
+    this.components.set(COMPONENT.SIZE, new Size(width, height));
+    this.components.set(COMPONENT.COLLIDES, new Collides());
   }
 }
