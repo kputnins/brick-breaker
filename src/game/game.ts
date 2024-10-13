@@ -30,10 +30,9 @@ type Canvas = {
 };
 
 type Controls = {
-  panel: HTMLDivElement;
-  newGameButton: HTMLButtonElement;
-  optionsButton: HTMLButtonElement;
-  infoButton: HTMLButtonElement;
+  left: boolean;
+  right: boolean;
+  space: boolean;
 };
 
 type GameState = {
@@ -51,49 +50,17 @@ type Sprites = {
 export class Game {
   // HTML elements
   private static canvas: Canvas;
-  private static controls: Controls; // TODO check if field requiered
   // Game state
   private static state: GameState;
   // Global values
   private static palyerName: string = "Player";
   private static resolution: (typeof RESOLUTIONS)[keyof typeof RESOLUTIONS] = RESOLUTIONS["720p"];
   private static paused: boolean = false;
+  private static controls: Controls = { left: false, right: false, space: false };
   // Resources
   private static sprites: Sprites;
   // Entities
   private static entities: Map<string, Entity> = entities;
-
-  private static initControls() {
-    const panel = document.getElementById("controls") as HTMLDivElement | null;
-    const newGameButton = document.getElementById(
-      "new-game-button",
-    ) as HTMLButtonElement | null;
-    const optionsButton = document.getElementById(
-      "options-button",
-    ) as HTMLButtonElement | null;
-    const infoButton = document.getElementById(
-      "info-button",
-    ) as HTMLButtonElement | null;
-
-    if (!panel || !newGameButton || !optionsButton || !infoButton) {
-      console.log("Controls element", panel);
-      console.log("New game button", newGameButton);
-      console.log("Options button", optionsButton);
-      console.log("Info button", infoButton);
-      throw new Error("Failed to get controls elements.");
-    }
-
-    this.controls = {
-      panel: panel,
-      newGameButton: newGameButton,
-      optionsButton: optionsButton,
-      infoButton: infoButton,
-    };
-
-    this.initInfoDialog();
-    this.initOptionsDialog();
-    this.initNewGameButton();
-  }
 
   private static initInfoDialog() {
     const dialog = document.getElementById(
@@ -181,8 +148,16 @@ export class Game {
   }
 
   private static initNewGameButton() {
-    this.controls.newGameButton.addEventListener("click", () => {
-      this.gameEnded = true;
+    const newGameButton = document.getElementById(
+      "new-game-button",
+    ) as HTMLButtonElement | null;
+
+    if (!newGameButton) {
+      console.log("New game button", newGameButton);
+      throw new Error("Failed to get new game button element.");
+    }
+
+    newGameButton.addEventListener("click", () => {
       this.newGame();
     });
   }
@@ -289,10 +264,46 @@ export class Game {
     requestAnimationFrame(this.update.bind(this));
   }
 
+  private static handleInput() {
+    window.addEventListener("keydown", (event) => {
+      switch (event.key) {
+        case "ArrowLeft":
+          this.controls.left = true;
+          break;
+        case "ArrowRight":
+          this.controls.right = true;
+          break;
+        case " ":
+          this.controls.space = true;
+          break;
+      }
+    });
+
+    window.addEventListener("keyup", (event) => {
+      switch (event.key) {
+        case "ArrowLeft":
+          this.controls.left = false;
+          break;
+        case "ArrowRight":
+          this.controls.right = false;
+          break;
+        case " ":
+          this.controls.space = false;
+          break;
+      }
+    });
+  }
+
+  private static initDom() {
+    this.initCanvas();
+    this.initInfoDialog();
+    this.initOptionsDialog();
+    this.initNewGameButton();
+    this.handleInput();
+  }
+
   private static newGame() {
     this.entities.clear();
-    this.initControls();
-    this.initCanvas();
     this.initState();
     this.initLevel(1);
     this.initPaddle();
@@ -300,6 +311,7 @@ export class Game {
   }
 
   public static startGame() {
+    this.initDom();
     this.newGame();
     this.update();
   }
