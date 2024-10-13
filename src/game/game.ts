@@ -58,6 +58,7 @@ export class Game {
   private static palyerName: string = "Player";
   private static resolution: (typeof RESOLUTIONS)[keyof typeof RESOLUTIONS] =
     RESOLUTIONS["720p"];
+  private static paused: boolean = false;
   // Resources
   private static sprites: Sprites;
   // Entities
@@ -113,10 +114,12 @@ export class Game {
     }
 
     showButton.addEventListener("click", () => {
+      this.paused = true;
       dialog.showModal();
     });
 
     closeButton.addEventListener("click", () => {
+      this.paused = false;
       dialog.close();
     });
   }
@@ -167,10 +170,12 @@ export class Game {
     });
 
     showButton.addEventListener("click", () => {
+      this.paused = true;
       dialog.showModal();
     });
 
     closeButton.addEventListener("click", () => {
+      this.paused = false;
       dialog.close();
     });
   }
@@ -244,6 +249,11 @@ export class Game {
   }
 
   private static update() {
+    if (this.paused) {
+      requestAnimationFrame(this.update.bind(this));
+      return;
+    }
+
     this.state.tick++;
 
     moveEntities(
