@@ -56,8 +56,7 @@ export class Game {
   private static state: GameState;
   // Global values
   private static palyerName: string = "Player";
-  private static resolution: (typeof RESOLUTIONS)[keyof typeof RESOLUTIONS] =
-    RESOLUTIONS["720p"];
+  private static resolution: (typeof RESOLUTIONS)[keyof typeof RESOLUTIONS] = RESOLUTIONS["720p"];
   private static paused: boolean = false;
   // Resources
   private static sprites: Sprites;
@@ -93,6 +92,7 @@ export class Game {
 
     this.initInfoDialog();
     this.initOptionsDialog();
+    this.initNewGameButton();
   }
 
   private static initInfoDialog() {
@@ -177,6 +177,13 @@ export class Game {
     closeButton.addEventListener("click", () => {
       this.paused = false;
       dialog.close();
+    });
+  }
+
+  private static initNewGameButton() {
+    this.controls.newGameButton.addEventListener("click", () => {
+      this.gameEnded = true;
+      this.newGame();
     });
   }
 
@@ -282,13 +289,18 @@ export class Game {
     requestAnimationFrame(this.update.bind(this));
   }
 
-  public static startGame() {
+  private static newGame() {
+    this.entities.clear();
     this.initControls();
     this.initCanvas();
     this.initState();
     this.initLevel(1);
     this.initPaddle();
     this.initBall();
+  }
+
+  public static startGame() {
+    this.newGame();
     this.update();
   }
 }
