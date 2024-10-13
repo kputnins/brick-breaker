@@ -13,6 +13,16 @@ declare global {
   }
 }
 
+const RESOLUTIONS = {
+  "480p": { width: 640, height: 480 },
+  "720p": { width: 1280, height: 720 },
+  "1080p": { width: 1920, height: 1080 },
+  "1440p": { width: 2560, height: 1440 },
+  "2160p": { width: 3840, height: 2160 },
+} as const;
+
+type Resolution = keyof typeof RESOLUTIONS;
+
 type Canvas = {
   htmlElement: HTMLCanvasElement;
   context: CanvasRenderingContext2D;
@@ -45,6 +55,8 @@ export class Game {
   private static state: GameState;
   // Global values
   private static palyerName: string = "Player";
+  private static resolution: (typeof RESOLUTIONS)[keyof typeof RESOLUTIONS] =
+    RESOLUTIONS["720p"];
   // Resources
   private static sprites: Sprites;
   // Entities
@@ -78,6 +90,7 @@ export class Game {
     };
 
     this.initInfoDialog();
+    this.initOptionsDialog();
   }
 
   private static initInfoDialog() {
@@ -107,6 +120,60 @@ export class Game {
     });
   }
 
+  private static initOptionsDialog() {
+    const dialog = document.getElementById(
+      "options-dialog",
+    ) as HTMLDialogElement | null;
+    const showButton = document.getElementById(
+      "options-button",
+    ) as HTMLButtonElement | null;
+    const closeButton = dialog?.querySelector(
+      "dialog button",
+    ) as HTMLButtonElement | null;
+
+    const resolutionSelect = document.getElementById(
+      "option-resolution",
+    ) as HTMLSelectElement | null;
+    const playerNameInput = document.getElementById(
+      "option-player-name",
+    ) as HTMLInputElement | null;
+
+    if (
+      !dialog ||
+      !showButton ||
+      !closeButton ||
+      !resolutionSelect ||
+      !playerNameInput
+    ) {
+      console.log("Options dialog", dialog);
+      console.log("Options button", showButton);
+      console.log("Close button", closeButton);
+      console.log("Resolution select", resolutionSelect);
+      console.log("Player name input", playerNameInput);
+      throw new Error("Failed to get options dialog elements.");
+    }
+
+    this.resolution = RESOLUTIONS[resolutionSelect.value as Resolution];
+    resolutionSelect.addEventListener("change", () => {
+      this.resolution = RESOLUTIONS[resolutionSelect.value as Resolution];
+      this.canvas.htmlElement.width = this.resolution.width;
+      this.canvas.htmlElement.height = this.resolution.height;
+    });
+
+    this.palyerName = playerNameInput.value;
+    playerNameInput.addEventListener("input", () => {
+      this.palyerName = playerNameInput.value;
+    });
+
+    showButton.addEventListener("click", () => {
+      dialog.showModal();
+    });
+
+    closeButton.addEventListener("click", () => {
+      dialog.close();
+    });
+  }
+
   private static initCanvas() {
     const canvas = document.getElementById(
       "canvas",
@@ -122,18 +189,8 @@ export class Game {
     }
 
     this.canvas = { htmlElement: canvas, context: context };
-
-    window.addEventListener("resize", this.handleResize.bind(this));
-    this.handleResize();
-  }
-
-  private static handleResize() {
-    const MAGIX_MISSING_PIXELS = 6;
-    this.canvas.htmlElement.width = window.innerWidth;
-    this.canvas.htmlElement.height =
-      window.innerHeight -
-      this.controls.panel.clientHeight -
-      MAGIX_MISSING_PIXELS;
+    this.canvas.htmlElement.width = this.resolution.width;
+    this.canvas.htmlElement.height = this.resolution.height;
   }
 
   private static initState() {

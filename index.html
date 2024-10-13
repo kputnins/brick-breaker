@@ -8,7 +8,7 @@
     </head>
 
     <body>
-        <div id="app">
+        <div id="app" class="flex-column align-items-center">
             <canvas id="canvas"></canvas>
 
             <div id="controls" class="flex justify-content-center gap-16 p-8">
@@ -24,6 +24,7 @@
                     <h1>Brick Breaker</h1>
                     <button autofocus>Close</button>
                 </div>
+
                 <div>
                     <p>Built with TypeScript, Vite and Deno 2.0</p>
                     <a
@@ -32,6 +33,36 @@
                     >
                         Link to repo
                     </a>
+                </div>
+            </dialog>
+
+            <dialog id="options-dialog" class="p-32">
+                <div
+                    class="flex justify-content-space-between align-items-center size-w-512 mb-32"
+                >
+                    <h1>Options</h1>
+                    <button autofocus>Close</button>
+                </div>
+                <div class="flex-column gap-16">
+                    <div class="flex justify-content-space-between">
+                        <label for="option-player-name">Player name</label>
+                        <input
+                            id="option-player-name"
+                            type="text"
+                            value="player"
+                        />
+                    </div>
+
+                    <div class="flex justify-content-space-between">
+                        <label for="option-resolution">Resolution</label>
+                        <select id="option-resolution">
+                            <option value="480p">480p</option>
+                            <option value="720p" selected="true">720p</option>
+                            <option value="1080p">1080p</option>
+                            <option value="1440p">1440p</option>
+                            <option value="2160p">2160p</option>
+                        </select>
+                    </div>
                 </div>
             </dialog>
         </div>
