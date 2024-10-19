@@ -12,8 +12,8 @@ import { Entity } from "./entities";
 export const drawEntities = (
   entities: Map<string, Entity>,
   context: CanvasRenderingContext2D,
-  worldWith: number,
-  worldHeight: number,
+  worldSize: Size,
+  scale: number,
 ) => {
   entities.forEach((entity) => {
     const position = entity.components.get(COMPONENT.POSITION) as | Position | undefined;
@@ -21,15 +21,15 @@ export const drawEntities = (
     const sprite = entity.components.get(COMPONENT.SPRITE) as | Sprite | undefined;
 
     if (!position || !size) return;
-    if (!isEntityIsInWorld(position, size, worldWith, worldHeight)) return;
+    if (!isEntityIsInWorld(position, size, worldSize.width, worldSize.height)) return;
 
     if (sprite) {
       context.drawImage(
         sprite.image,
-        position.x,
-        position.y,
-        size.width,
-        size.height,
+        position.x * scale,
+        position.y * scale,
+        size.width * scale,
+        size.height * scale,
       );
     }
 
@@ -46,8 +46,7 @@ export const drawEntities = (
 
 export const moveEntities = (
   entities: Map<string, Entity>,
-  worldWith: number,
-  worldHeight: number,
+  worldSize: Size,
 ) => {
   entities.forEach((entity) => {
     const position = entity.components.get(COMPONENT.POSITION) as | Position | undefined;
@@ -57,7 +56,7 @@ export const moveEntities = (
     const clampToEdges = entity.components.get(COMPONENT.CLAMP_TO_EDGES) as | BouncesFromEdges | undefined;
 
     if (!position || !velocity || !size) return;
-    if (!isEntityIsInWorld(position, size, worldWith, worldHeight)) return;
+    if (!isEntityIsInWorld(position, size, worldSize.width, worldSize.height)) return;
 
     const newPosition = {
       x: position.x + velocity.x,
@@ -69,8 +68,8 @@ export const moveEntities = (
         position.x = 0;
       }
 
-      else if (newPosition.x + size.width > worldWith && clampToEdges.right) {
-        position.x = worldWith - size.width;
+      else if (newPosition.x + size.width > worldSize.width && clampToEdges.right) {
+        position.x = worldSize.width - size.width;
       }
 
       else {
@@ -81,8 +80,8 @@ export const moveEntities = (
         position.y = 0;
       }
 
-      else if (newPosition.y + size.height > worldHeight && clampToEdges.bottom) {
-        position.y = worldHeight - size.height;
+      else if (newPosition.y + size.height > worldSize.height && clampToEdges.bottom) {
+        position.y = worldSize.height - size.height;
       }
 
       else {
@@ -95,7 +94,7 @@ export const moveEntities = (
         velocity.x = -velocity.x;
       }
 
-      else if (newPosition.x + size.width > worldWith && bouncesFromEdges.right) {
+      else if (newPosition.x + size.width > worldSize.width && bouncesFromEdges.right) {
         velocity.x = -velocity.x;
       }
 
@@ -103,7 +102,7 @@ export const moveEntities = (
         velocity.y = -velocity.y;
       }
 
-      else if (newPosition.y + size.height > worldHeight && bouncesFromEdges.bottom) {
+      else if (newPosition.y + size.height > worldSize.height && bouncesFromEdges.bottom) {
         velocity.y = -velocity.y;
       }
     }

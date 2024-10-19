@@ -5,7 +5,7 @@ import "./styles/helpers.scss";
 
 function main() {
   Game.startGame();
-  window.game = Game;
+  globalThis.game = Game;
 }
 
 main();

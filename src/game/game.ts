@@ -18,8 +18,9 @@ declare global {
   }
 }
 
+// TODO make square :(
 const RESOLUTIONS = {
-  "480p": { width: 640, height: 480, scale: 0.5 },
+  "480p": { width: 640, height: 360, scale: 0.5 },
   "720p": { width: 1280, height: 720, scale: 1 },
   "1080p": { width: 1920, height: 1080, scale: 1.5 },
   "1440p": { width: 2560, height: 1440, scale: 2 },
@@ -60,6 +61,7 @@ export class Game {
   private static state: GameState;
   // Global values
   private static palyerName: string = "Player";
+  private static worldSize: Size = new Size(1280, 720);
   private static resolution: (typeof RESOLUTIONS)[keyof typeof RESOLUTIONS] = RESOLUTIONS["720p"];
   private static paused: boolean = false;
   private static controls: Controls = { left: false, right: false, space: false };
@@ -135,6 +137,7 @@ export class Game {
       this.resolution = RESOLUTIONS[resolutionSelect.value as Resolution];
       this.canvas.htmlElement.width = this.resolution.width;
       this.canvas.htmlElement.height = this.resolution.height;
+      this.draw();
     });
 
     this.palyerName = playerNameInput.value;
@@ -215,16 +218,18 @@ export class Game {
   }
 
   private static initPaddle() {
+    const paddleWidth = 100;
     new Paddle(
-      this.canvas.htmlElement.width / 2 - 100,
-      this.canvas.htmlElement.height - 50,
+      this.worldSize.width / 2 - paddleWidth / 2,
+      this.worldSize.height - 50,
     );
   }
 
   private static initBall() {
+    const ballSize = 15;
     new Ball(
-      this.canvas.htmlElement.width / 2,
-      this.canvas.htmlElement.height / 2,
+      this.worldSize.width / 2 - ballSize / 2,
+      this.worldSize.height / 2 - ballSize / 2,
     );
   }
 
@@ -235,6 +240,24 @@ export class Game {
       0,
       this.canvas.htmlElement.width,
       this.canvas.htmlElement.height,
+    );
+  }
+
+  private static draw() {
+    this.clearCanvas();
+    drawEntities(this.entities, this.canvas.context,
+      this.worldSize, this.resolution.scale);
+
+    // Draw the current tick in the top left corner
+    this.canvas.context.fillStyle = "white";
+    this.canvas.context.font = "16px Arial";
+    this.canvas.context.fillText(`Tick: ${this.state.tick}`, 10, 20);
+
+    // Draw the current score in the top right corner
+    this.canvas.context.fillText(
+      `Score: ${this.state.score}`,
+      this.canvas.htmlElement.width - 100,
+      20,
     );
   }
 
@@ -271,32 +294,16 @@ export class Game {
 
     moveEntities(
       this.entities,
-      this.canvas.htmlElement.width,
-      this.canvas.htmlElement.height,
+      this.worldSize,
     );
 
-    this.clearCanvas();
-    drawEntities(this.entities, this.canvas.context,
-      this.canvas.htmlElement.width,
-      this.canvas.htmlElement.height,);
-
-    // Draw the current tick in the top left corner
-    this.canvas.context.fillStyle = "white";
-    this.canvas.context.font = "16px Arial";
-    this.canvas.context.fillText(`Tick: ${this.state.tick}`, 10, 20);
-
-    // Draw the current score in the top right corner
-    this.canvas.context.fillText(
-      `Score: ${this.state.score}`,
-      this.canvas.htmlElement.width - 100,
-      20,
-    );
+    this.draw();
 
     requestAnimationFrame(this.update.bind(this));
   }
 
   private static handleInput() {
-    window.addEventListener("keydown", (event) => {
+    globalThis.addEventListener("keydown", (event) => {
       switch (event.key) {
         case "ArrowLeft":
           this.controls.left = true;
@@ -310,7 +317,7 @@ export class Game {
       }
     });
 
-    window.addEventListener("keyup", (event) => {
+    globalThis.addEventListener("keyup", (event) => {
       switch (event.key) {
         case "ArrowLeft":
           this.controls.left = false;
@@ -326,11 +333,11 @@ export class Game {
   }
 
   private static initDom() {
-    this.initCanvas();
     this.initInfoDialog();
     this.initOptionsDialog();
     this.initNewGameButton();
     this.handleInput();
+    this.initCanvas();
   }
 
   private static newGame() {

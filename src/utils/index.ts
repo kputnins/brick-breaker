@@ -35,4 +35,4 @@ export const isEntityTouchingWorldEdges = (
   }
 
   return false;
-}
+};
