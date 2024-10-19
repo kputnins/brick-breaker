@@ -198,13 +198,20 @@ export class Game {
     switch (level) {
       default:
       case 1:
-        Array.from({ length: 10 }, (_, i) => {
-          const row = Math.floor(i / 2);
-          const col = i % 2;
-          return new Brick(
-            this.worldSize.width / 2 + col * 110,
-            100 + row * 50,
-          );
+        const brickCount = 100;
+        const columns = 10;
+        // Create 10 columns of 5 rows of bricks
+        Array.from({ length: brickCount }, (_, i) => {
+          const row = Math.floor(i / columns);
+          const col = i % columns;
+
+          const offsetX = (this.worldSize.width - brickCount * columns) / 2;
+          const offsetY = 100;
+
+          return new Brick({
+            x: offsetX + col * brickCount,
+            y: offsetY + row * 20,
+          });
         });
 
         break;

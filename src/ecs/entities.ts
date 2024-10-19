@@ -89,12 +89,19 @@ export class Ball extends Entity {
 }
 
 export class Brick extends Entity {
-  constructor(x: number, y: number) {
+  constructor(params?: { x?: number, y?: number, width?: number, height?: number, health?: number }) {
     super(ENTITY.BRICK);
+
+    const x = params?.x ?? 0;
+    const y = params?.y ?? 0;
+    const width = params?.width ?? 100;
+    const height = params?.height ?? 20;
+    const health = params?.health ?? 10;
+
     this.components.set(COMPONENT.POSITION, new Position(x, y));
-    this.components.set(COMPONENT.SIZE, new Size(100, 20));
+    this.components.set(COMPONENT.SIZE, new Size(width, height));
     this.components.set(COMPONENT.COLLIDES, new Collides());
-    this.components.set(COMPONENT.HEALTH, new Health(100));
+    this.components.set(COMPONENT.HEALTH, new Health(health));
     this.components.set(COMPONENT.SPRITE, new Sprite(SPRITES.BRICK));
   }
 }
