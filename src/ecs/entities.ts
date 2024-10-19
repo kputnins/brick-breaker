@@ -1,4 +1,6 @@
 import {
+  BouncesFromEdges,
+  ClampToEdges,
   Collides,
   COMPONENT,
   Component,
@@ -56,7 +58,7 @@ export class Paddle extends Entity {
     this.components.set(COMPONENT.POSITION, new Position(x, y));
     this.components.set(COMPONENT.SIZE, new Size(100, 20));
     this.components.set(COMPONENT.COLLIDES, new Collides());
-    this.components.set(COMPONENT.CLAMP_TO_EDGES, new Collides());
+    this.components.set(COMPONENT.CLAMP_TO_EDGES, new ClampToEdges());
     this.components.set(COMPONENT.VELOCITY, new Velocity(0, 0));
     this.components.set(COMPONENT.SPRITE, new Sprite(SPRITES.PADDLE));
   }
@@ -68,7 +70,9 @@ export class Ball extends Entity {
     this.components.set(COMPONENT.POSITION, new Position(x, y));
     this.components.set(COMPONENT.SIZE, new Size(15, 15));
     this.components.set(COMPONENT.COLLIDES, new Collides());
-    this.components.set(COMPONENT.BOUNCES_FROM_EDGES, new Collides());
+    this.components.set(COMPONENT.CLAMP_TO_EDGES, new ClampToEdges());
+    // TODO remove bottom bounce
+    this.components.set(COMPONENT.BOUNCES_FROM_EDGES, new BouncesFromEdges({ bottom: true }));
     this.components.set(COMPONENT.VELOCITY, new Velocity(3, -1));
     this.components.set(COMPONENT.SPRITE, new Sprite(SPRITES.BALL));
   }

@@ -40,11 +40,33 @@ export class Collides extends Component {
 }
 
 export class BouncesFromEdges extends Component {
-  public bounces: boolean = true;
+  public top: boolean;
+  public bottom: boolean;
+  public left: boolean;
+  public right: boolean;
+
+  constructor(edges?: { top?: boolean; bottom?: boolean; left?: boolean; right?: boolean }) {
+    super();
+    this.top = edges?.top ?? true;
+    this.bottom = edges?.bottom ?? false;
+    this.left = edges?.left ?? true;
+    this.right = edges?.right ?? true;
+  }
 }
 
 export class ClampToEdges extends Component {
-  public clamp: boolean = true;
+  public top: boolean;
+  public bottom: boolean;
+  public left: boolean;
+  public right: boolean;
+
+  constructor(edges?: { top?: boolean; bottom?: boolean; left?: boolean; right?: boolean }) {
+    super();
+    this.top = edges?.top ?? true;
+    this.bottom = edges?.bottom ?? false;
+    this.left = edges?.left ?? true;
+    this.right = edges?.right ?? true;
+  }
 }
 
 export class Sprite extends Component {

@@ -11,7 +11,6 @@ import {
   Size,
   Velocity,
 } from "../ecs";
-import { isEntityTouchingWorldEdges } from "../utils";
 
 declare global {
   interface Window {
@@ -217,7 +216,7 @@ export class Game {
 
   private static initPaddle() {
     new Paddle(
-      this.canvas.htmlElement.width / 2,
+      this.canvas.htmlElement.width / 2 - 100,
       this.canvas.htmlElement.height - 50,
     );
   }
@@ -260,11 +259,11 @@ export class Game {
 
         if (this.controls.left && this.controls.right) return;
 
-        if (this.controls.left && position.x > 0) {
+        if (this.controls.left) {
           velocity.x = -this.state.paddleSpeed;
         }
 
-        if (this.controls.right && position.x + size.width < this.canvas.htmlElement.width) {
+        if (this.controls.right) {
           velocity.x = this.state.paddleSpeed;
         }
       }

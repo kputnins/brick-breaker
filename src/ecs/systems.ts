@@ -44,7 +44,6 @@ export const drawEntities = (
   });
 };
 
-// TODO make a seprate system for the ball
 export const moveEntities = (
   entities: Map<string, Entity>,
   worldWith: number,
@@ -54,42 +53,62 @@ export const moveEntities = (
     const position = entity.components.get(COMPONENT.POSITION) as | Position | undefined;
     const size = entity.components.get(COMPONENT.SIZE) as Size | undefined;
     const velocity = entity.components.get(COMPONENT.VELOCITY) as | Velocity | undefined;
-    const bounces = entity.components.get(COMPONENT.BOUNCES_FROM_EDGES) as | BouncesFromEdges | undefined;
-    const clamp = entity.components.get(COMPONENT.CLAMP_TO_EDGES) as | BouncesFromEdges | undefined;
+    const bouncesFromEdges = entity.components.get(COMPONENT.BOUNCES_FROM_EDGES) as | BouncesFromEdges | undefined;
+    const clampToEdges = entity.components.get(COMPONENT.CLAMP_TO_EDGES) as | BouncesFromEdges | undefined;
 
     if (!position || !velocity || !size) return;
     if (!isEntityIsInWorld(position, size, worldWith, worldHeight)) return;
 
-    if (bounces) {
-      if (
-        position.x + velocity.x < 0 ||
-        position.x + velocity.x + size.width > worldWith
-      ) {
-        velocity.x *= -1;
-      }
+    const newPosition = {
+      x: position.x + velocity.x,
+      y: position.y + velocity.y,
+    };
 
-      if (position.y + velocity.y < 0) {
-        velocity.y *= -1;
-      }
-    }
-
-    if (clamp) {
-      if (position.x + velocity.x < 0) {
+    if (clampToEdges) {
+      if (newPosition.x < 0 && clampToEdges.left) {
         position.x = 0;
-      } else if (position.x + velocity.x + size.width > worldWith) {
+      }
+
+      else if (newPosition.x + size.width > worldWith && clampToEdges.right) {
         position.x = worldWith - size.width;
-      } else {
+      }
+
+      else {
         position.x += velocity.x;
       }
 
-      if (position.y + velocity.y < 0) {
+      if (newPosition.y < 0 && clampToEdges.top) {
         position.y = 0;
-      } else if (position.y + velocity.y + size.height > worldHeight) {
-        position.y = worldHeight - size.height;
-      } else {
-        position.y += velocity.y;
       }
-    } else {
+
+      else if (newPosition.y + size.height > worldHeight && clampToEdges.bottom) {
+        position.y = worldHeight - size.height;
+      }
+
+      else {
+        position.y += velocity.y
+      }
+    }
+
+    if (bouncesFromEdges) {
+      if (newPosition.x < 0 && bouncesFromEdges.left) {
+        velocity.x = -velocity.x;
+      }
+
+      else if (newPosition.x + size.width > worldWith && bouncesFromEdges.right) {
+        velocity.x = -velocity.x;
+      }
+
+      if (newPosition.y < 0 && bouncesFromEdges.top) {
+        velocity.y = -velocity.y;
+      }
+
+      else if (newPosition.y + size.height > worldHeight && bouncesFromEdges.bottom) {
+        velocity.y = -velocity.y;
+      }
+    }
+
+    if (!clampToEdges) {
       position.x += velocity.x;
       position.y += velocity.y;
     }
