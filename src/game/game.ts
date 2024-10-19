@@ -1,3 +1,4 @@
+import { BALL_SIZE, PADDLE_SIZE, RESOLUTION } from "../constants";
 import {
   Ball,
   Brick,
@@ -18,17 +19,6 @@ declare global {
   }
 }
 
-// TODO make square :(
-const RESOLUTIONS = {
-  "480p": { width: 640, height: 360, scale: 0.5 },
-  "720p": { width: 1280, height: 720, scale: 1 },
-  "1080p": { width: 1920, height: 1080, scale: 1.5 },
-  "1440p": { width: 2560, height: 1440, scale: 2 },
-  "2160p": { width: 3840, height: 2160, scale: 3 },
-} as const;
-
-type Resolution = keyof typeof RESOLUTIONS;
-
 type Canvas = {
   htmlElement: HTMLCanvasElement;
   context: CanvasRenderingContext2D;
@@ -45,7 +35,9 @@ type GameState = {
   score: number;
   lives: number;
   paddleSpeed: number;
+  paddleSize: PADDLE_SIZE;
   ballSpeed: number;
+  ballSize: BALL_SIZE;
 };
 
 type Sprites = {
@@ -62,7 +54,7 @@ export class Game {
   // Global values
   private static palyerName: string = "Player";
   private static worldSize: Size = new Size(1280, 720);
-  private static resolution: (typeof RESOLUTIONS)[keyof typeof RESOLUTIONS] = RESOLUTIONS["720p"];
+  private static resolution: (typeof RESOLUTION)[keyof typeof RESOLUTION] = RESOLUTION["720p"];
   private static paused: boolean = false;
   private static controls: Controls = { left: false, right: false, space: false };
   // Resources
@@ -132,9 +124,9 @@ export class Game {
       throw new Error("Failed to get options dialog elements.");
     }
 
-    this.resolution = RESOLUTIONS[resolutionSelect.value as Resolution];
+    this.resolution = RESOLUTION[resolutionSelect.value as RESOLUTION];
     resolutionSelect.addEventListener("change", () => {
-      this.resolution = RESOLUTIONS[resolutionSelect.value as Resolution];
+      this.resolution = RESOLUTION[resolutionSelect.value as RESOLUTION];
       this.canvas.htmlElement.width = this.resolution.width;
       this.canvas.htmlElement.height = this.resolution.height;
       this.draw();
@@ -196,7 +188,9 @@ export class Game {
       score: 0,
       lives: 3,
       paddleSpeed: 6,
+      paddleSize: PADDLE_SIZE.MEDIUM,
       ballSpeed: 3,
+      ballSize: BALL_SIZE.MEDIUM,
     };
   }
 
@@ -208,7 +202,7 @@ export class Game {
           const row = Math.floor(i / 2);
           const col = i % 2;
           return new Brick(
-            this.canvas.htmlElement.width / 2 + col * 110,
+            this.worldSize.width / 2 + col * 110,
             100 + row * 50,
           );
         });
@@ -219,18 +213,21 @@ export class Game {
 
   private static initPaddle() {
     const paddleWidth = 100;
-    new Paddle(
-      this.worldSize.width / 2 - paddleWidth / 2,
-      this.worldSize.height - 50,
-    );
+    const paddleHeight = 20;
+    new Paddle({
+      size: this.state.paddleSize,
+      x: this.worldSize.width / 2 - paddleWidth / 2,
+      y: this.worldSize.height - paddleHeight * 1.5,
+    });
   }
 
   private static initBall() {
-    const ballSize = 15;
-    new Ball(
-      this.worldSize.width / 2 - ballSize / 2,
-      this.worldSize.height / 2 - ballSize / 2,
-    );
+    new Ball({
+      size: this.state.ballSize,
+      x: this.worldSize.width / 2,
+      y: this.worldSize.height / 2,
+      velocity: this.state.ballSpeed,
+    });
   }
 
   private static clearCanvas() {
@@ -269,8 +266,8 @@ export class Game {
 
     this.state.tick++;
 
-    // Update paddle velocity if the controls are pressed
     this.entities.forEach((entity) => {
+      // Update paddle velocity if the controls are pressed
       if (entity instanceof Paddle) {
         const velocity = entity.components.get(COMPONENT.VELOCITY) as Velocity | undefined;
         const position = entity.components.get(COMPONENT.POSITION) as Position | undefined;

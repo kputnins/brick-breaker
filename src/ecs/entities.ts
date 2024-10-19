@@ -53,10 +53,14 @@ export class Player extends Entity {
 }
 
 export class Paddle extends Entity {
-  constructor(x: number, y: number) {
+  constructor(params?: { size?: number, x?: number, y?: number }) {
+    const size = params?.size ?? 100;
+    const x = params?.x ?? 0;
+    const y = params?.y ?? 0;
+
     super(ENTITY.PADDLE);
     this.components.set(COMPONENT.POSITION, new Position(x, y));
-    this.components.set(COMPONENT.SIZE, new Size(100, 20));
+    this.components.set(COMPONENT.SIZE, new Size(size, size / 5));
     this.components.set(COMPONENT.COLLIDES, new Collides());
     this.components.set(COMPONENT.CLAMP_TO_EDGES, new ClampToEdges());
     this.components.set(COMPONENT.VELOCITY, new Velocity(0, 0));
@@ -65,15 +69,21 @@ export class Paddle extends Entity {
 }
 
 export class Ball extends Entity {
-  constructor(x: number, y: number) {
+  constructor(params?: { x?: number, y?: number, size?: number, velocity?: number }) {
     super(ENTITY.BALL);
+
+    const size = params?.size ?? 12;
+    const x = params?.x ?? 0;
+    const y = params?.y ?? 0;
+    const velocity = params?.velocity ?? 3;
+
     this.components.set(COMPONENT.POSITION, new Position(x, y));
-    this.components.set(COMPONENT.SIZE, new Size(15, 15));
+    this.components.set(COMPONENT.SIZE, new Size(size, size));
     this.components.set(COMPONENT.COLLIDES, new Collides());
     this.components.set(COMPONENT.CLAMP_TO_EDGES, new ClampToEdges());
     // TODO remove bottom bounce
     this.components.set(COMPONENT.BOUNCES_FROM_EDGES, new BouncesFromEdges({ bottom: true }));
-    this.components.set(COMPONENT.VELOCITY, new Velocity(3, -1));
+    this.components.set(COMPONENT.VELOCITY, new Velocity(velocity, velocity / -1));
     this.components.set(COMPONENT.SPRITE, new Sprite(SPRITES.BALL));
   }
 }
