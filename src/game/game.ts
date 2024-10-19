@@ -38,12 +38,7 @@ type GameState = {
   paddleSize: PADDLE_SIZE;
   ballSpeed: number;
   ballSize: BALL_SIZE;
-};
-
-type Sprites = {
-  player: HTMLImageElement;
-  block: HTMLImageElement;
-  ball: HTMLImageElement;
+  ballDamage: number;
 };
 
 export class Game {
@@ -57,8 +52,6 @@ export class Game {
   private static resolution: (typeof RESOLUTION)[keyof typeof RESOLUTION] = RESOLUTION["720p"];
   private static paused: boolean = false;
   private static controls: Controls = { left: false, right: false, space: false };
-  // Resources
-  private static sprites: Sprites;
   // Entities
   private static entities: Map<string, Entity> = entities;
 
@@ -189,8 +182,9 @@ export class Game {
       lives: 3,
       paddleSpeed: 6,
       paddleSize: PADDLE_SIZE.MEDIUM,
-      ballSpeed: 3,
+      ballSpeed: 10,
       ballSize: BALL_SIZE.MEDIUM,
+      ballDamage: 1,
     };
   }
 
@@ -276,9 +270,9 @@ export class Game {
     this.entities.forEach((entity) => {
       // Update paddle velocity if the controls are pressed
       if (entity instanceof Paddle) {
-        const velocity = entity.components.get(COMPONENT.VELOCITY) as Velocity | undefined;
-        const position = entity.components.get(COMPONENT.POSITION) as Position | undefined;
-        const size = entity.components.get(COMPONENT.SIZE) as Size | undefined;
+        const velocity = entity.components.find(component => component.type === COMPONENT.VELOCITY) as Velocity | undefined;
+        const position = entity.components.find(component => component.type === COMPONENT.POSITION) as Position | undefined;
+        const size = entity.components.find(component => component.type === COMPONENT.SIZE) as Size | undefined;
 
         if (!velocity || !position || !size) throw new Error("Paddle missing velocity, position, or size.");
 

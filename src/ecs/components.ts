@@ -6,19 +6,25 @@ export const COMPONENT = {
   CLAMP_TO_EDGES: "CLAMP_TO_EDGES",
   SPRITE: "SPRITE",
   HEALTH: "HEALTH",
+  DAMAGE: "DAMAGE",
   VELOCITY: "VELOCITY",
 } as const;
-
 export type COMPONENT = (typeof COMPONENT)[keyof typeof COMPONENT];
 
-export class Component { }
+export class Component {
+  public type: COMPONENT;
+
+  constructor(type: COMPONENT) {
+    this.type = type;
+  }
+}
 
 export class Position extends Component {
   public x: number = 0;
   public y: number = 0;
 
   constructor(x: number, y: number) {
-    super();
+    super(COMPONENT.POSITION);
     this.x = x;
     this.y = y;
   }
@@ -29,7 +35,7 @@ export class Size extends Component {
   public height: number = 0;
 
   constructor(width: number, height: number) {
-    super();
+    super(COMPONENT.SIZE);
     this.width = width;
     this.height = height;
   }
@@ -37,6 +43,11 @@ export class Size extends Component {
 
 export class Collides extends Component {
   public collides: boolean = true;
+
+  constructor(collides?: boolean) {
+    super(COMPONENT.COLLIDES);
+    this.collides = collides ?? true;
+  }
 }
 
 export class BouncesFromEdges extends Component {
@@ -46,7 +57,7 @@ export class BouncesFromEdges extends Component {
   public right: boolean;
 
   constructor(edges?: { top?: boolean; bottom?: boolean; left?: boolean; right?: boolean }) {
-    super();
+    super(COMPONENT.BOUNCES_FROM_EDGES);
     this.top = edges?.top ?? true;
     this.bottom = edges?.bottom ?? false;
     this.left = edges?.left ?? true;
@@ -61,7 +72,7 @@ export class ClampToEdges extends Component {
   public right: boolean;
 
   constructor(edges?: { top?: boolean; bottom?: boolean; left?: boolean; right?: boolean }) {
-    super();
+    super(COMPONENT.CLAMP_TO_EDGES);
     this.top = edges?.top ?? true;
     this.bottom = edges?.bottom ?? false;
     this.left = edges?.left ?? true;
@@ -73,17 +84,26 @@ export class Sprite extends Component {
   public image: HTMLImageElement;
 
   constructor(image: HTMLImageElement) {
-    super();
+    super(COMPONENT.SPRITE);
     this.image = image;
   }
 }
 
 export class Health extends Component {
-  public health: number = 100;
+  public health: number = 1;
 
-  constructor(health: number) {
-    super();
-    this.health = health;
+  constructor(health?: number) {
+    super(COMPONENT.HEALTH);
+    this.health = health ?? 1;
+  }
+}
+
+export class Damage extends Component {
+  public damage: number = 1;
+
+  constructor(damage?: number) {
+    super(COMPONENT.DAMAGE);
+    this.damage = damage ?? 1;
   }
 }
 
@@ -92,23 +112,21 @@ export class Velocity extends Component {
   public y: number = 0;
 
   constructor(x: number, y: number) {
-    super();
+    super(COMPONENT.VELOCITY);
     this.x = x;
     this.y = y;
   }
 
-  public add = (x: number, y: number) => {
-    this.x += x;
-    this.y += y;
-  };
+  public reverseX() {
+    this.x = -this.x;
+  }
 
-  public subtract = (x: number, y: number) => {
-    this.x -= x;
-    this.y -= y;
-  };
+  public reverseY() {
+    this.y = -this.y;
+  }
 
-  public set = (x: number, y: number) => {
-    this.x = x;
-    this.y = y;
-  };
+  public reverse() {
+    this.reverseX();
+    this.reverseY();
+  }
 }
