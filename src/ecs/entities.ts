@@ -33,7 +33,16 @@ export const ENTITY = {
 export class Entity {
   public id: string;
   type: (typeof ENTITY)[keyof typeof ENTITY];
-  public components: Component[] = [];
+
+  public position: Position | null = null;
+  public size: Size | null = null;
+  public collides: Collides | null = null;
+  public bouncesFromEdges: BouncesFromEdges | null = null;
+  public clampToEdges: ClampToEdges | null = null;
+  public sprite: Sprite | null = null;
+  public health: Health | null = null;
+  public damage: Damage | null = null;
+  public velocity: Velocity | null = null;
 
   constructor(type: (typeof ENTITY)[keyof typeof ENTITY]) {
     this.type = type;
@@ -46,12 +55,6 @@ export class Entity {
   };
 }
 
-export class Player extends Entity {
-  constructor() {
-    super(ENTITY.PLAYER);
-  }
-}
-
 export class Paddle extends Entity {
   constructor(params?: { size?: number, x?: number, y?: number }) {
     const size = params?.size ?? 100;
@@ -59,12 +62,12 @@ export class Paddle extends Entity {
     const y = params?.y ?? 0;
 
     super(ENTITY.PADDLE);
-    this.components.push(new Position(x, y));
-    this.components.push(new Size(size, size / 5));
-    this.components.push(new Collides());
-    this.components.push(new ClampToEdges());
-    this.components.push(new Velocity(0, 0));
-    this.components.push(new Sprite(SPRITES.PADDLE));
+    this.position = new Position(x, y);
+    this.size = new Size(size, size / 5);
+    this.collides = new Collides();
+    this.clampToEdges = new ClampToEdges();
+    this.velocity = new Velocity(0, 0);
+    this.sprite = new Sprite(SPRITES.PADDLE);
   }
 }
 
@@ -77,15 +80,15 @@ export class Ball extends Entity {
     const y = params?.y ?? 0;
     const velocity = params?.velocity ?? 3;
 
-    this.components.push(new Position(x, y));
-    this.components.push(new Size(size, size));
-    this.components.push(new Collides());
-    this.components.push(new ClampToEdges());
+    this.position = new Position(x, y);
+    this.size = new Size(size, size);
+    this.collides = new Collides();
+    this.clampToEdges = new ClampToEdges();
     // TODO remove bottom bounce
-    this.components.push(new BouncesFromEdges({ bottom: true }));
-    this.components.push(new Velocity(velocity, velocity / -3));
-    this.components.push(new Damage())
-    this.components.push(new Sprite(SPRITES.BALL));
+    this.bouncesFromEdges = new BouncesFromEdges({ bottom: true });
+    this.velocity = new Velocity(velocity, velocity / -3);
+    this.damage = new Damage()
+    this.sprite = new Sprite(SPRITES.BALL);
   }
 }
 
@@ -99,19 +102,19 @@ export class Brick extends Entity {
     const height = params?.height ?? 20;
     const health = params?.health ?? 1;
 
-    this.components.push(new Position(x, y));
-    this.components.push(new Size(width, height));
-    this.components.push(new Collides());
-    this.components.push(new Health(health));
-    this.components.push(new Sprite(SPRITES.BRICK));
+    this.position = new Position(x, y);
+    this.size = new Size(width, height);
+    this.collides = new Collides();
+    this.health = new Health(health);
+    this.sprite = new Sprite(SPRITES.BRICK);
   }
 }
 
 export class Wall extends Entity {
   constructor(x: number, y: number, width: number, height: number) {
     super(ENTITY.WALL);
-    this.components.push(new Position(x, y));
-    this.components.push(new Size(width, height));
-    this.components.push(new Collides());
+    this.position = new Position(x, y);
+    this.size = new Size(width, height);
+    this.collides = new Collides();
   }
 }

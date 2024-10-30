@@ -270,9 +270,9 @@ export class Game {
     this.entities.forEach((entity) => {
       // Update paddle velocity if the controls are pressed
       if (entity instanceof Paddle) {
-        const velocity = entity.components.find(component => component.type === COMPONENT.VELOCITY) as Velocity | undefined;
-        const position = entity.components.find(component => component.type === COMPONENT.POSITION) as Position | undefined;
-        const size = entity.components.find(component => component.type === COMPONENT.SIZE) as Size | undefined;
+        const velocity = entity.velocity;
+        const position = entity.position;
+        const size = entity.size;
 
         if (!velocity || !position || !size) throw new Error("Paddle missing velocity, position, or size.");
 

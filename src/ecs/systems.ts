@@ -17,9 +17,9 @@ export const drawEntities = (
   scale: number,
 ) => {
   entities.forEach((entity) => {
-    const position = entity.components.find(component => component.type === COMPONENT.POSITION) as Position | undefined;
-    const size = entity.components.find(component => component.type === COMPONENT.SIZE) as Size | undefined;
-    const sprite = entity.components.find(component => component.type === COMPONENT.SPRITE) as Sprite | undefined;
+    const position = entity.position;
+    const size = entity.size;
+    const sprite = entity.sprite;
 
     if (!position || !size) return;
     if (!isEntityIsInWorld(position, size, worldSize.width, worldSize.height)) return;
@@ -50,11 +50,11 @@ export const moveEntities = (
   worldSize: Size,
 ) => {
   entities.forEach((entity) => {
-    const position = entity.components.find(component => component.type === COMPONENT.POSITION) as Position | undefined;
-    const size = entity.components.find(component => component.type === COMPONENT.SIZE) as Size | undefined;
-    const velocity = entity.components.find(component => component.type === COMPONENT.VELOCITY) as Velocity | undefined;
-    const bouncesFromEdges = entity.components.find(component => component.type === COMPONENT.BOUNCES_FROM_EDGES) as BouncesFromEdges | undefined;
-    const clampToEdges = entity.components.find(component => component.type === COMPONENT.CLAMP_TO_EDGES) as ClampToEdges | undefined;
+    const position = entity.position;
+    const size = entity.size;
+    const velocity = entity.velocity;
+    const bouncesFromEdges = entity.bouncesFromEdges;
+    const clampToEdges = entity.clampToEdges;
 
     if (!position || !velocity || !size) return;
     if (!isEntityIsInWorld(position, size, worldSize.width, worldSize.height)) return;

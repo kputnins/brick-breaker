@@ -13,5 +13,6 @@
     "sass-embedded": "^1.79.5",
     "typescript": "^5.5.3",
     "vite": "^5.4.8"
-  }
+  },
+  "packageManager": "pnpm@9.0.4+sha1.b198ac6d38244fd829253720f9daafd6a606834d"
 }

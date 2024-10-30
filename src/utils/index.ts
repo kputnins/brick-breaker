@@ -21,10 +21,10 @@ export const isEntityIsInWorld = (
 export type EntityOrientation = 'top' | 'bottom' | 'left' | 'right' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | null;
 
 export const calculateEntityOrientation = (sourceEntity: Entity, targetEntity: Entity): EntityOrientation => {
-  const sourcePosition = sourceEntity.components.find(component => component.type === COMPONENT.POSITION) as Position | undefined;
-  const sourceSize = sourceEntity.components.find(component => component.type === COMPONENT.SIZE) as Size | undefined;
-  const targetPosition = targetEntity.components.find(component => component.type === COMPONENT.POSITION) as Position | undefined;
-  const targetSize = targetEntity.components.find(component => component.type === COMPONENT.SIZE) as Size | undefined;
+  const sourcePosition = sourceEntity.position;
+  const sourceSize = sourceEntity.size;
+  const targetPosition = targetEntity.position;
+  const targetSize = targetEntity.size;
 
   if (!sourcePosition || !sourceSize || !targetPosition || !targetSize) {
     console.error("Calculating orientation for entities missing position or size.", sourceEntity, targetEntity);
@@ -56,9 +56,9 @@ export const calculateEntityOrientation = (sourceEntity: Entity, targetEntity: E
 export type CollisionTarget = { entity: Entity, bounds: { startX: number, endX: number, startY: number, endY: number } }
 
 export const calculateCollisionTarget = (entity: Entity, entities: Map<string, Entity>): null | CollisionTarget => {
-  const position = entity.components.find(component => component.type === COMPONENT.POSITION) as Position | undefined;
-  const size = entity.components.find(component => component.type === COMPONENT.SIZE) as Size | undefined;
-  const velocity = entity.components.find(component => component.type === COMPONENT.VELOCITY) as Velocity | undefined;
+  const position = entity.position;
+  const size = entity.size;
+  const velocity = entity.velocity;
 
   if (!position || !size || !velocity) {
     console.error("Calculating collision for entity thats missing position, size, or velocity.", entity);
@@ -76,11 +76,11 @@ export const calculateCollisionTarget = (entity: Entity, entities: Map<string, E
     if (!otherEntity) continue;
     if (entity.id === otherEntity.id) continue;
 
-    const collides = otherEntity.components.find(component => component.type === COMPONENT.COLLIDES) as Collides | undefined;
+    const collides = otherEntity.collides;
     if (!collides) continue;
 
-    const otherPosition = otherEntity.components.find(component => component.type === COMPONENT.POSITION) as Position | undefined;
-    const otherSize = otherEntity.components.find(component => component.type === COMPONENT.SIZE) as Size | undefined;
+    const otherPosition = otherEntity.position;
+    const otherSize = otherEntity.size;
 
     if (!otherPosition || !otherSize) {
       console.error("Calculating collision for entity that's missing position or size.", otherEntity);
