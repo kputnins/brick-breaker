@@ -1,12 +1,6 @@
 import { calculateCollisionTarget, calculateEntityOrientation, isEntityIsInWorld } from "../utils";
 import {
-  BouncesFromEdges,
-  ClampToEdges,
-  COMPONENT,
-  Position,
   Size,
-  Sprite,
-  Velocity,
 } from "./components";
 import { Entity } from "./entities";
 
@@ -17,18 +11,19 @@ export const drawEntities = (
   scale: number,
 ) => {
   entities.forEach((entity) => {
-    const position = entity.position;
     const size = entity.size;
     const sprite = entity.sprite;
 
-    if (!position || !size) return;
-    if (!isEntityIsInWorld(position, size, worldSize.width, worldSize.height)) return;
+    if (!size) return;
+    if (!isEntityIsInWorld(size, worldSize)) return;
+
+    const coordinates = size.coordinates;
 
     if (sprite) {
       context.drawImage(
         sprite.image,
-        position.x * scale,
-        position.y * scale,
+        coordinates.x1 * scale,
+        coordinates.y1 * scale,
         size.width * scale,
         size.height * scale,
       );
@@ -37,10 +32,10 @@ export const drawEntities = (
     // If no sprite is found, draw a gray rectangle with the entity's ID
     else {
       context.fillStyle = "gray";
-      context.fillRect(position.x, position.y, size.width, size.height);
+      context.fillRect(coordinates.x1, coordinates.y1, size.width, size.height);
 
       context.fillStyle = "white";
-      context.fillText(entity.id, position.x, position.y + 16);
+      context.fillText(entity.id, coordinates.x1, coordinates.y1 + 16);
     }
   });
 };
@@ -57,13 +52,9 @@ export const moveEntities = (
     const clampToEdges = entity.clampToEdges;
 
     if (!position || !velocity || !size) return;
-    if (!isEntityIsInWorld(position, size, worldSize.width, worldSize.height)) return;
+    if (!isEntityIsInWorld(size, worldSize)) return;
 
-    const newPosition = {
-      x: position.x + velocity.x,
-      y: position.y + velocity.y,
-    };
-
+    const nextCoordinates = size.nextCoordinates(velocity)
     const collisionTarget = calculateCollisionTarget(entity, entities);
 
     if (collisionTarget) {
@@ -71,7 +62,6 @@ export const moveEntities = (
       // TODO remove console log
       console.log(collisionTarget, targetOrieantation)
       if (targetOrieantation) {
-
         // Reverse the velocity based on the orientation of the collision
         switch (targetOrieantation) {
           case 'top':
@@ -95,15 +85,15 @@ export const moveEntities = (
 
         // Move the entity to the edge of the collision target
         if (targetOrieantation.includes('top')) {
-          position.y = collisionTarget.bounds.endY;
+          position.y = collisionTarget.bounds.y2;
         } else if (targetOrieantation.includes('bottom')) {
-          position.y = collisionTarget.bounds.startY - size.height - 1;
+          position.y = collisionTarget.bounds.y1 - size.height - 1;
         }
 
         if (targetOrieantation.includes('left')) {
-          position.x = collisionTarget.bounds.endX;
+          position.x = collisionTarget.bounds.x2;
         } else if (targetOrieantation.includes('right')) {
-          position.x = collisionTarget.bounds.startX - size.width - 1;
+          position.x = collisionTarget.bounds.x1 - size.width - 1;
         }
 
 
@@ -116,32 +106,32 @@ export const moveEntities = (
     }
 
     if (clampToEdges) {
-      if (newPosition.x < 0 && clampToEdges.left) {
+      if (nextCoordinates.x1 < 0 && clampToEdges.left) {
         position.x = 0;
-      } else if (newPosition.x + size.width > worldSize.width && clampToEdges.right) {
+      } else if (nextCoordinates.x2 > worldSize.width && clampToEdges.right) {
         position.x = worldSize.width - size.width;
       } else {
         position.x += velocity.x;
       }
 
-      if (newPosition.y < 0 && clampToEdges.top) {
+      if (nextCoordinates.y1 < 0 && clampToEdges.top) {
         position.y = 0;
-      } else if (newPosition.y + size.height > worldSize.height && clampToEdges.bottom) {
+      } else if (nextCoordinates.y2 > worldSize.height && clampToEdges.bottom) {
         position.y = worldSize.height - size.height;
       } else {
         position.y += velocity.y
       }
 
       if (bouncesFromEdges) {
-        if (newPosition.x < 0 && bouncesFromEdges.left) {
+        if (nextCoordinates.x1 < 0 && bouncesFromEdges.left) {
           velocity.x = -velocity.x;
-        } else if (newPosition.x + size.width > worldSize.width && bouncesFromEdges.right) {
+        } else if (nextCoordinates.x2 > worldSize.width && bouncesFromEdges.right) {
           velocity.x = -velocity.x;
         }
 
-        if (newPosition.y < 0 && bouncesFromEdges.top) {
+        if (nextCoordinates.y1 < 0 && bouncesFromEdges.top) {
           velocity.y = -velocity.y;
-        } else if (newPosition.y + size.height > worldSize.height && bouncesFromEdges.bottom) {
+        } else if (nextCoordinates.y2 > worldSize.height && bouncesFromEdges.bottom) {
           velocity.y = -velocity.y;
         }
       }

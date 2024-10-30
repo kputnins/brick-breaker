@@ -31,13 +31,33 @@ export class Position extends Component {
 }
 
 export class Size extends Component {
+  private position: Position;
   public width: number = 0;
   public height: number = 0;
 
-  constructor(width: number, height: number) {
+  constructor(position: Position, width: number, height: number) {
     super(COMPONENT.SIZE);
+    this.position = position;
     this.width = width;
     this.height = height;
+  }
+
+  public get coordinates() {
+    return {
+      x1: this.position.x,
+      y1: this.position.y,
+      x2: this.position.x + this.width,
+      y2: this.position.y + this.height,
+    };
+  }
+
+  public nextCoordinates(velocity: Velocity) {
+    return {
+      x1: this.position.x + velocity.x,
+      y1: this.position.y + velocity.y,
+      x2: this.position.x + this.width + velocity.x,
+      y2: this.position.y + this.height + velocity.y,
+    };
   }
 }
 

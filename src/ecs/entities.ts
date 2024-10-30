@@ -2,7 +2,6 @@ import {
   BouncesFromEdges,
   ClampToEdges,
   Collides,
-  Component,
   Damage,
   Health,
   Position,
@@ -63,7 +62,7 @@ export class Paddle extends Entity {
 
     super(ENTITY.PADDLE);
     this.position = new Position(x, y);
-    this.size = new Size(size, size / 5);
+    this.size = new Size(this.position, size, size / 5);
     this.collides = new Collides();
     this.clampToEdges = new ClampToEdges();
     this.velocity = new Velocity(0, 0);
@@ -81,11 +80,10 @@ export class Ball extends Entity {
     const velocity = params?.velocity ?? 3;
 
     this.position = new Position(x, y);
-    this.size = new Size(size, size);
+    this.size = new Size(this.position, size, size);
     this.collides = new Collides();
     this.clampToEdges = new ClampToEdges();
-    // TODO remove bottom bounce
-    this.bouncesFromEdges = new BouncesFromEdges({ bottom: true });
+    this.bouncesFromEdges = new BouncesFromEdges({ bottom: true }); // TODO remove bottom bounce
     this.velocity = new Velocity(velocity, velocity / -3);
     this.damage = new Damage()
     this.sprite = new Sprite(SPRITES.BALL);
@@ -103,7 +101,7 @@ export class Brick extends Entity {
     const health = params?.health ?? 1;
 
     this.position = new Position(x, y);
-    this.size = new Size(width, height);
+    this.size = new Size(this.position, width, height);
     this.collides = new Collides();
     this.health = new Health(health);
     this.sprite = new Sprite(SPRITES.BRICK);
@@ -114,7 +112,7 @@ export class Wall extends Entity {
   constructor(x: number, y: number, width: number, height: number) {
     super(ENTITY.WALL);
     this.position = new Position(x, y);
-    this.size = new Size(width, height);
+    this.size = new Size(this.position, width, height);
     this.collides = new Collides();
   }
 }

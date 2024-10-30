@@ -2,7 +2,6 @@ import { BALL_SIZE, PADDLE_SIZE, RESOLUTION } from "../constants";
 import {
   Ball,
   Brick,
-  COMPONENT,
   drawEntities,
   entities,
   Entity,
@@ -10,7 +9,6 @@ import {
   Paddle,
   Position,
   Size,
-  Velocity,
 } from "../ecs";
 
 declare global {
@@ -48,7 +46,7 @@ export class Game {
   private static state: GameState;
   // Global values
   private static palyerName: string = "Player";
-  private static worldSize: Size = new Size(1280, 720);
+  private static worldSize: Size = new Size(new Position(0, 0), 1280, 720);
   private static resolution: (typeof RESOLUTION)[keyof typeof RESOLUTION] = RESOLUTION["720p"];
   private static paused: boolean = false;
   private static controls: Controls = { left: false, right: false, space: false };
@@ -180,7 +178,7 @@ export class Game {
       tick: 0,
       score: 0,
       lives: 3,
-      paddleSpeed: 6,
+      paddleSpeed: 10,
       paddleSize: PADDLE_SIZE.MEDIUM,
       ballSpeed: 10,
       ballSize: BALL_SIZE.MEDIUM,

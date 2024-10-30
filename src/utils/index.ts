@@ -1,16 +1,15 @@
-import { Collides, COMPONENT, Entity, Position, Size, Velocity } from "../ecs";
+import { Entity, Size } from "../ecs";
 
 export const isEntityIsInWorld = (
-  position: Position,
   size: Size,
-  worldWidth: number,
-  worldHeight: number,
+  worldSize: Size,
 ) => {
+  const coordinates = size.coordinates;
   if (
-    position.x < 0 ||
-    position.x - size.width > worldWidth ||
-    position.y < 0 ||
-    position.y - size.height > worldHeight
+    coordinates.x2 < 0 ||
+    coordinates.x1 > worldSize.width ||
+    coordinates.y2 < 0 ||
+    coordinates.y1 > worldSize.height
   ) {
     return false;
   }
@@ -21,25 +20,26 @@ export const isEntityIsInWorld = (
 export type EntityOrientation = 'top' | 'bottom' | 'left' | 'right' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | null;
 
 export const calculateEntityOrientation = (sourceEntity: Entity, targetEntity: Entity): EntityOrientation => {
-  const sourcePosition = sourceEntity.position;
   const sourceSize = sourceEntity.size;
-  const targetPosition = targetEntity.position;
   const targetSize = targetEntity.size;
 
-  if (!sourcePosition || !sourceSize || !targetPosition || !targetSize) {
+  if (!sourceSize || !targetSize) {
     console.error("Calculating orientation for entities missing position or size.", sourceEntity, targetEntity);
     throw new Error("Entity missing position or size.");
   }
+
+  const sourceCoordinates = sourceSize.coordinates;
+  const targetCoordinates = targetSize.coordinates;
 
   let isTop = false;
   let isBottom = false;
   let isLeft = false;
   let isRight = false;
 
-  if (sourcePosition.y + sourceSize.height < targetPosition.y) isBottom = true;
-  if (sourcePosition.y >= targetPosition.y + targetSize.height) isTop = true;
-  if (sourcePosition.x + sourceSize.width < targetPosition.x) isRight = true;
-  if (sourcePosition.x >= targetPosition.x + targetSize.width) isLeft = true;
+  if (sourceCoordinates.y2 < targetCoordinates.y1) isBottom = true;
+  if (sourceCoordinates.y1 >= targetCoordinates.y2) isTop = true;
+  if (sourceCoordinates.x2 < targetCoordinates.x1) isRight = true;
+  if (sourceCoordinates.x1 >= targetCoordinates.x2) isLeft = true;
 
   if (isTop && isLeft) return 'top-left';
   if (isTop && isRight) return 'top-right';
@@ -53,22 +53,18 @@ export const calculateEntityOrientation = (sourceEntity: Entity, targetEntity: E
   return null;
 }
 
-export type CollisionTarget = { entity: Entity, bounds: { startX: number, endX: number, startY: number, endY: number } }
+export type CollisionTarget = { entity: Entity, bounds: { x1: number, x2: number, y1: number, y2: number } }
 
 export const calculateCollisionTarget = (entity: Entity, entities: Map<string, Entity>): null | CollisionTarget => {
-  const position = entity.position;
   const size = entity.size;
   const velocity = entity.velocity;
 
-  if (!position || !size || !velocity) {
-    console.error("Calculating collision for entity thats missing position, size, or velocity.", entity);
-    throw new Error("Entity missing position, size, or velocity.");
+  if (!size || !velocity) {
+    console.error("Calculating collision for entity thats missing  size, or velocity.", entity);
+    throw new Error("Entity missing  size, or velocity.");
   }
 
-  const newX = position.x + velocity.x;
-  const newY = position.y + velocity.y;
-  const newBounds = { startX: newX, startY: newY, endX: newX + size.width, endY: newY + size.height };
-
+  const nextCoordinates = size.nextCoordinates(velocity);
   const entityKeys = Array.from(entities.keys());
 
   for (let i = 0; i < entityKeys.length; i++) {
@@ -87,10 +83,10 @@ export const calculateCollisionTarget = (entity: Entity, entities: Map<string, E
       throw new Error("Entity missing position, or velocity.");
     }
 
-    const otherBounds = { startX: otherPosition.x, startY: otherPosition.y, endX: otherPosition.x + otherSize.width, endY: otherPosition.y + otherSize.height };
+    const otherBounds = { x1: otherPosition.x, y1: otherPosition.y, x2: otherPosition.x + otherSize.width, y2: otherPosition.y + otherSize.height };
 
-    const overlapsX = newBounds.startX < otherBounds.endX && newBounds.endX > otherBounds.startX;
-    const overlapsY = newBounds.startY < otherBounds.endY && newBounds.endY > otherBounds.startY;
+    const overlapsX = nextCoordinates.x1 < otherBounds.x2 && nextCoordinates.x2 > otherBounds.x1;
+    const overlapsY = nextCoordinates.y1 < otherBounds.y2 && nextCoordinates.y2 > otherBounds.y1;
 
     if (overlapsX && overlapsY) return { entity: otherEntity, bounds: otherBounds };
   }
