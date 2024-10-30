@@ -3,7 +3,7 @@ import { calculateCollisionTarget, calculateEntityOrientation, isEntityIsInWorld
 import {
   Size,
 } from "./components";
-import { Entity } from "./entities";
+import { ENTITY, Entity } from "./entities";
 
 export const drawEntities = (
   entities: Map<string, Entity>,
@@ -46,11 +46,14 @@ export const moveEntities = (
   worldSize: Size,
 ) => {
   entities.forEach((entity) => {
+    // // Skip the ball
+    // if (entity.type === ENTITY.BALL) return;
+
     const position = entity.position;
     const size = entity.size;
     const velocity = entity.velocity;
-    const bouncesFromEdges = entity.bouncesFromEdges;
     const clampToEdges = entity.clampToEdges;
+    const bouncesFromEdges = entity.bouncesFromEdges;
 
     if (!position || !velocity || !size) return;
     if (!isEntityIsInWorld(size, worldSize)) return;
@@ -59,7 +62,13 @@ export const moveEntities = (
     const collisionTarget = calculateCollisionTarget(entity, entities);
 
     if (collisionTarget) {
-      SOUNDS.HIT_BLOCK.play();
+      if (entity.type === ENTITY.BALL) {
+        if (collisionTarget.entity.type === ENTITY.PADDLE) {
+          SOUNDS.HIT_PADDLE.play();
+        } else {
+          SOUNDS.HIT_BLOCK.play();
+        }
+      }
 
       const targetOrieantation = calculateEntityOrientation(entity, collisionTarget.entity);
       if (targetOrieantation) {
@@ -106,50 +115,48 @@ export const moveEntities = (
       return;
     }
 
-    if (clampToEdges) {
-      if (nextCoordinates.x1 < 0 && clampToEdges.left) {
-        position.x = 0;
-      } else if (nextCoordinates.x2 > worldSize.width && clampToEdges.right) {
-        position.x = worldSize.width - size.width;
-      } else {
-        position.x += velocity.x;
+    let bouncedFromWall = false;
+
+    // Move along x axis
+    if (nextCoordinates.x1 < 0 && clampToEdges?.left) {
+      position.x = 0;
+
+      if (bouncesFromEdges?.left) {
+        velocity.reverseX();
+        bouncedFromWall = true;
       }
+    } else if (nextCoordinates.x2 > worldSize.width && clampToEdges?.right) {
+      position.x = worldSize.width - size.width;
 
-      if (nextCoordinates.y1 < 0 && clampToEdges.top) {
-        position.y = 0;
-      } else if (nextCoordinates.y2 > worldSize.height && clampToEdges.bottom) {
-        position.y = worldSize.height - size.height;
-      } else {
-        position.y += velocity.y
+      if (bouncesFromEdges?.right) {
+        velocity.reverseX();
+        bouncedFromWall = true;
       }
-
-      if (bouncesFromEdges) {
-        let bounced = false;
-        if (nextCoordinates.x1 < 0 && bouncesFromEdges.left) {
-          velocity.x = -velocity.x;
-          bounced = true;
-        } else if (nextCoordinates.x2 > worldSize.width && bouncesFromEdges.right) {
-          velocity.x = -velocity.x;
-          bounced = true;
-        }
-
-        if (nextCoordinates.y1 < 0 && bouncesFromEdges.top) {
-          velocity.y = -velocity.y;
-          bounced = true;
-        } else if (nextCoordinates.y2 > worldSize.height && bouncesFromEdges.bottom) {
-          velocity.y = -velocity.y;
-          bounced = true;
-        }
-
-        if (bounced) {
-          SOUNDS.HIT_BLOCK.play();
-        }
-      }
-
-      return;
+    } else {
+      position.x += velocity.x;
     }
 
-    position.x += velocity.x;
-    position.y += velocity.y;
+    // Move along y axis
+    if (nextCoordinates.y1 < 0 && clampToEdges?.top) {
+      position.y = 0;
+
+      if (bouncesFromEdges?.top) {
+        velocity.reverseY();
+        bouncedFromWall = true;
+      }
+    } else if (nextCoordinates.y2 > worldSize.height && clampToEdges?.bottom) {
+      position.y = worldSize.height - size.height;
+
+      if (bouncesFromEdges?.bottom) {
+        velocity.reverseY();
+        bouncedFromWall = true;
+      }
+    } else {
+      position.y += velocity.y
+    }
+
+    if (entity.type === ENTITY.BALL && bouncedFromWall) {
+      SOUNDS.HIT_EDGE.play();
+    }
   });
 };
