@@ -1,3 +1,4 @@
+import { SOUNDS } from "../sounds";
 import { calculateCollisionTarget, calculateEntityOrientation, isEntityIsInWorld } from "../utils";
 import {
   Size,
@@ -58,9 +59,9 @@ export const moveEntities = (
     const collisionTarget = calculateCollisionTarget(entity, entities);
 
     if (collisionTarget) {
+      SOUNDS.HIT_BLOCK.play();
+
       const targetOrieantation = calculateEntityOrientation(entity, collisionTarget.entity);
-      // TODO remove console log
-      console.log(collisionTarget, targetOrieantation)
       if (targetOrieantation) {
         // Reverse the velocity based on the orientation of the collision
         switch (targetOrieantation) {
@@ -123,16 +124,25 @@ export const moveEntities = (
       }
 
       if (bouncesFromEdges) {
+        let bounced = false;
         if (nextCoordinates.x1 < 0 && bouncesFromEdges.left) {
           velocity.x = -velocity.x;
+          bounced = true;
         } else if (nextCoordinates.x2 > worldSize.width && bouncesFromEdges.right) {
           velocity.x = -velocity.x;
+          bounced = true;
         }
 
         if (nextCoordinates.y1 < 0 && bouncesFromEdges.top) {
           velocity.y = -velocity.y;
+          bounced = true;
         } else if (nextCoordinates.y2 > worldSize.height && bouncesFromEdges.bottom) {
           velocity.y = -velocity.y;
+          bounced = true;
+        }
+
+        if (bounced) {
+          SOUNDS.HIT_BLOCK.play();
         }
       }
 
