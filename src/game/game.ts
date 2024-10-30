@@ -5,6 +5,7 @@ import {
   drawEntities,
   entities,
   Entity,
+  moveBall,
   moveEntities,
   Paddle,
   Position,
@@ -216,7 +217,7 @@ export class Game {
     new Paddle({
       size: this.state.paddleSize,
       x: this.worldSize.width / 2 - paddleWidth / 2,
-      y: this.worldSize.height - paddleHeight * 1.5,
+      y: this.worldSize.height - paddleHeight * 1,
     });
   }
 
@@ -288,10 +289,7 @@ export class Game {
       }
     });
 
-    moveEntities(
-      this.entities,
-      this.worldSize,
-    );
+    moveEntities(this.entities, this.worldSize);
 
     this.draw();
 

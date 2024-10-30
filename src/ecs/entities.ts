@@ -82,7 +82,7 @@ export class Ball extends Entity {
     this.position = new Position(x, y);
     this.size = new Size(this.position, size, size);
     this.collides = new Collides();
-    this.clampToEdges = new ClampToEdges();
+    this.clampToEdges = new ClampToEdges({ bottom: true });
     this.bouncesFromEdges = new BouncesFromEdges({ bottom: true }); // TODO remove bottom bounce
     this.velocity = new Velocity(velocity, velocity / -3);
     this.damage = new Damage()
