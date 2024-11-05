@@ -1,3 +1,5 @@
+import { Entity } from "./entities";
+
 export const COMPONENT = {
   POSITION: "POSITION",
   SIZE: "SIZE",
@@ -115,6 +117,16 @@ export class Health extends Component {
   constructor(health?: number) {
     super(COMPONENT.HEALTH);
     this.health = health ?? 1;
+  }
+
+  public isDead() {
+    return this.health <= 0;
+  }
+
+  public tageDamage(damage: number) {
+    this.health -= damage;
+
+    return this.isDead();
   }
 }
 

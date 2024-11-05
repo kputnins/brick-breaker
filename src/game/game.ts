@@ -53,6 +53,10 @@ export class Game {
   // Entities
   private static entities: Map<string, Entity> = entities;
 
+  public static incrementScore = (amount: number) => {
+    Game.state.score += amount;
+  };
+
   private static initInfoDialog() {
     const dialog = document.getElementById(
       "info-dialog",

@@ -1,3 +1,4 @@
+import { Game } from "../game/game";
 import { SOUNDS } from "../sounds";
 import { findColidingEntity, calculateTargetEntityOrientation, isEntityIsInWorld } from "../utils";
 import {
@@ -138,10 +139,26 @@ const handleCollisions = (collisions: Collision[]): void => {
     }
 
     if (entity.type === ENTITY.BALL) {
-      if (colidingEntity.type === ENTITY.PADDLE) {
-        SOUNDS.HIT_PADDLE.play();
-      } else {
-        SOUNDS.HIT_BLOCK.play();
+      switch (colidingEntity.type) {
+        case ENTITY.PADDLE: {
+          SOUNDS.HIT_PADDLE.play();
+          break;
+        }
+        case ENTITY.BRICK: {
+          SOUNDS.HIT_BLOCK.play();
+
+          const damage = entity.damage;
+          const colidingEntityHealth = colidingEntity.health;
+
+          if (damage && colidingEntityHealth) {
+            const isBrickDestroyed = colidingEntityHealth.tageDamage(damage.damage);
+            if (isBrickDestroyed) {
+              colidingEntity.delete();
+              Game.incrementScore(100);
+            }
+          }
+          break;
+        }
       }
     }
 
