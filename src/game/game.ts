@@ -6,6 +6,7 @@ import {
   entities,
   Entity,
   moveEntities,
+  trackGameBalls,
   Paddle,
   Position,
   Size,
@@ -37,6 +38,7 @@ type GameState = {
   ballSpeed: number;
   ballSize: BALL_SIZE;
   ballDamage: number;
+  ballAttachedToPaddle: boolean;
 };
 
 export class Game {
@@ -52,10 +54,7 @@ export class Game {
   private static controls: Controls = { left: false, right: false, space: false };
   // Entities
   private static entities: Map<string, Entity> = entities;
-
-  public static incrementScore = (amount: number) => {
-    Game.state.score += amount;
-  };
+  private static paddle: Paddle;
 
   private static initInfoDialog() {
     const dialog = document.getElementById(
@@ -182,11 +181,12 @@ export class Game {
       tick: 0,
       score: 0,
       lives: 3,
-      paddleSpeed: 10,
+      paddleSpeed: 15,
       paddleSize: PADDLE_SIZE.MEDIUM,
-      ballSpeed: 10,
+      ballSpeed: 5,
       ballSize: BALL_SIZE.MEDIUM,
       ballDamage: 1,
+      ballAttachedToPaddle: true,
     };
   }
 
@@ -215,21 +215,27 @@ export class Game {
   }
 
   private static initPaddle() {
-    const paddleWidth = 100;
-    const paddleHeight = 20;
-    new Paddle({
+    this.paddle = new Paddle({
       size: this.state.paddleSize,
-      x: this.worldSize.width / 2 - paddleWidth / 2,
-      y: this.worldSize.height - paddleHeight * 1,
+      x: this.worldSize.width / 2 - this.state.paddleSize / 2,
+      y: this.worldSize.height - this.state.paddleSize / 8 * 1,
     });
   }
 
   private static initBall() {
+    const paddeCoordiantes = this.paddle.size?.coordinates;
+
+    if (!paddeCoordiantes) {
+      throw new Error("Failed to get paddle coordinates.");
+    }
+
+    const paddleCenterX = paddeCoordiantes.x1 + (paddeCoordiantes.x2 - paddeCoordiantes.x1) / 2
+
     new Ball({
       size: this.state.ballSize,
-      x: this.worldSize.width / 2,
-      y: this.worldSize.height / 2,
-      velocity: this.state.ballSpeed,
+      x: paddleCenterX - this.state.ballSize / 2,
+      y: paddeCoordiantes.y1 - this.state.ballSize,
+      velocity: 0,
     });
   }
 
@@ -259,6 +265,13 @@ export class Game {
       this.canvas.htmlElement.width - 100,
       20,
     );
+
+    // Draw the current lives in the top right corner
+    this.canvas.context.fillText(
+      `Lives: ${this.state.lives}`,
+      this.canvas.htmlElement.width - 100,
+      40,
+    );
   }
 
   private static update() {
@@ -269,30 +282,10 @@ export class Game {
 
     this.state.tick++;
 
-    this.entities.forEach((entity) => {
-      // Update paddle velocity if the controls are pressed
-      if (entity instanceof Paddle) {
-        const velocity = entity.velocity;
-        const position = entity.position;
-        const size = entity.size;
-
-        if (!velocity || !position || !size) throw new Error("Paddle missing velocity, position, or size.");
-
-        velocity.x = 0;
-
-        if (this.controls.left && this.controls.right) return;
-
-        if (this.controls.left) {
-          velocity.x = -this.state.paddleSpeed;
-        }
-
-        if (this.controls.right) {
-          velocity.x = this.state.paddleSpeed;
-        }
-      }
-    });
+    this.handleInput();
 
     moveEntities(this.entities, this.worldSize);
+    trackGameBalls(this.entities, this.worldSize);
 
     this.draw();
 
@@ -300,6 +293,61 @@ export class Game {
   }
 
   private static handleInput() {
+    this.updatePaddleVelocity();
+
+    if (this.controls.space === true) {
+      if (this.state.ballAttachedToPaddle) {
+        this.state.ballAttachedToPaddle = false;
+        this.entities.forEach(entity => {
+          if (entity instanceof Ball) {
+            if (!entity.velocity) {
+              throw new Error("Ball missing velocity.");
+            }
+
+            entity.velocity.set(this.state.ballSpeed, -this.state.ballSpeed);
+          }
+        })
+      }
+
+      // TODO - trigger powerups
+    }
+  }
+
+  private static updatePaddleVelocity() {
+    const paddlePosition = this.paddle.position;
+    const paddleSize = this.paddle.size;
+    const paddleVelocity = this.paddle.velocity;
+
+    if (!paddlePosition || !paddleSize || !paddleVelocity) {
+      throw new Error("Paddle missing size or velocity");
+    }
+
+    paddleVelocity.x = 0;
+
+    if (this.controls.left && this.controls.right) return;
+
+    if (this.controls.left) {
+      paddleVelocity.x = -this.state.paddleSpeed;
+    }
+
+    if (this.controls.right) {
+      paddleVelocity.x = this.state.paddleSpeed;
+    }
+
+    if (this.state.ballAttachedToPaddle) {
+      this.entities.forEach(entity => {
+        if (entity instanceof Ball) {
+          if (!entity.position || !entity.size) {
+            throw new Error("Ball missing position or size.");
+          }
+
+          entity.position.x = paddlePosition.x + paddleSize.width / 2 - entity.size.width / 2;
+        }
+      });
+    }
+  }
+
+  private static initInpurListeners() {
     globalThis.addEventListener("keydown", (event) => {
       switch (event.key) {
         case "ArrowLeft":
@@ -333,11 +381,11 @@ export class Game {
     this.initInfoDialog();
     this.initOptionsDialog();
     this.initNewGameButton();
-    this.handleInput();
+    this.initInpurListeners();
     this.initCanvas();
   }
 
-  private static newGame() {
+  public static newGame() {
     this.entities.clear();
     this.initState();
     this.initLevel(1);
@@ -349,5 +397,43 @@ export class Game {
     this.initDom();
     this.newGame();
     this.update();
+  }
+
+  public static resetPaddleAndBall() {
+    if (!this.paddle.position) {
+      throw new Error("Paddle missing position.");
+    }
+
+    this.paddle.position.set(
+      this.worldSize.width / 2 - this.state.paddleSize / 2,
+      this.worldSize.height - this.state.paddleSize / 8 * 1,
+    );
+
+    this.initBall();
+    Game.state.ballAttachedToPaddle = true;
+  }
+
+  public static incrementScore = (amount: number) => {
+    Game.state.score += amount;
+  };
+
+  public static incrementLives = (amount: number = 1) => {
+    Game.state.lives += amount;
+  };
+
+  public static decrementLives = (amount: number = 1) => {
+    Game.state.lives -= amount;
+  };
+
+  public static hasLives = () => {
+    return Game.state.lives > 0;
+  };
+
+  public static isDevMode(): boolean {
+    return window.location.hostname === "localhost";
+  }
+
+  public static isDemoMode(): boolean {
+    return window.location.search.includes("demo");
   }
 }

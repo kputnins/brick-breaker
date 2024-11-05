@@ -11,6 +11,7 @@ import {
 } from "./components";
 
 import { SPRITES } from "../sprites";
+import { Game } from "../game/game";
 
 export const entities = new Map<string, Entity>();
 
@@ -82,8 +83,8 @@ export class Ball extends Entity {
     this.position = new Position(x, y);
     this.size = new Size(this.position, size, size);
     this.collides = new Collides();
-    this.clampToEdges = new ClampToEdges({ bottom: true });
-    this.bouncesFromEdges = new BouncesFromEdges({ bottom: true }); // TODO remove bottom bounce
+    this.clampToEdges = new ClampToEdges({ bottom: Game.isDemoMode() });
+    this.bouncesFromEdges = new BouncesFromEdges({ bottom: Game.isDemoMode() });
     this.velocity = new Velocity(velocity, velocity / -3);
     this.damage = new Damage()
     this.sprite = new Sprite(SPRITES.BALL);

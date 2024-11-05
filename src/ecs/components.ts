@@ -30,6 +30,11 @@ export class Position extends Component {
     this.x = x;
     this.y = y;
   }
+
+  public set(x: number, y: number) {
+    this.x = x;
+    this.y = y;
+  }
 }
 
 export class Size extends Component {
@@ -160,5 +165,10 @@ export class Velocity extends Component {
   public reverse() {
     this.reverseX();
     this.reverseY();
+  }
+
+  public set(x: number, y: number) {
+    this.x = x;
+    this.y = y;
   }
 }

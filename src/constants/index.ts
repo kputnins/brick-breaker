@@ -15,8 +15,8 @@ export const BALL_SIZE = {
 export type BALL_SIZE = (typeof BALL_SIZE)[keyof typeof BALL_SIZE]
 
 export const PADDLE_SIZE = {
-  SMALL: 60,
-  MEDIUM: 100,
-  LARGE: 140,
+  SMALL: 80,
+  MEDIUM: 160,
+  LARGE: 240,
 } as const
 export type PADDLE_SIZE = (typeof PADDLE_SIZE)[keyof typeof PADDLE_SIZE]

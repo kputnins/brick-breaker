@@ -202,4 +202,43 @@ const handleCollisions = (collisions: Collision[]): void => {
       console.warn("No orientation found for collision.", entity, colidingEntity);
     }
   })
-}
+};
+
+export const trackGameBalls = (
+  entities: Map<string, Entity>,
+  worldSize: Size
+): void => {
+  entities.forEach((entity) => {
+    if (entity.type !== ENTITY.BALL) return;
+
+    const size = entity.size;
+    if (!size) {
+      console.error("Ball entity missing size.", entity);
+      throw new Error("Ball entity missing size.");
+    }
+
+    if (!isEntityIsInWorld(size, worldSize)) {
+      entity.delete();
+    }
+  });
+
+  let hasBalls = false;
+
+  entities.forEach((entity) => {
+    if (entity.type === ENTITY.BALL) {
+      hasBalls = true;
+      return
+    };
+
+  });
+
+  if (!hasBalls) {
+    SOUNDS.LOOSE_ALL_BALLS.play();
+    Game.decrementLives();
+    Game.resetPaddleAndBall();
+
+    if (!Game.hasLives()) {
+      Game.newGame();
+    }
+  }
+};
