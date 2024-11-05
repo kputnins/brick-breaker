@@ -1,5 +1,5 @@
 import { SOUNDS } from "../sounds";
-import { calculateCollisionTarget, calculateEntityOrientation, isEntityIsInWorld } from "../utils";
+import { findColidingEntity, calculateTargetEntityOrientation, isEntityIsInWorld } from "../utils";
 import {
   Size,
 } from "./components";
@@ -45,10 +45,9 @@ export const moveEntities = (
   entities: Map<string, Entity>,
   worldSize: Size,
 ) => {
-  entities.forEach((entity) => {
-    // // Skip the ball
-    // if (entity.type === ENTITY.BALL) return;
+  const collsisions: Collision[] = [];
 
+  entities.forEach((entity) => {
     const position = entity.position;
     const size = entity.size;
     const velocity = entity.velocity;
@@ -59,59 +58,11 @@ export const moveEntities = (
     if (!isEntityIsInWorld(size, worldSize)) return;
 
     const nextCoordinates = size.nextCoordinates(velocity)
-    const collisionTarget = calculateCollisionTarget(entity, entities);
+    const colidingEntity = findColidingEntity(entity, entities);
 
-    if (collisionTarget) {
-      if (entity.type === ENTITY.BALL) {
-        if (collisionTarget.entity.type === ENTITY.PADDLE) {
-          SOUNDS.HIT_PADDLE.play();
-        } else {
-          SOUNDS.HIT_BLOCK.play();
-        }
-      }
-
-      const targetOrieantation = calculateEntityOrientation(entity, collisionTarget.entity);
-      if (targetOrieantation) {
-        // Reverse the velocity based on the orientation of the collision
-        switch (targetOrieantation) {
-          case 'top':
-          case 'bottom': {
-            velocity.reverseY();
-            break;
-          }
-          case 'left':
-          case 'right': {
-            velocity.reverseX();
-            break;
-          }
-          case 'top-left':
-          case 'top-right':
-          case 'bottom-left':
-          case 'bottom-right': {
-            velocity.reverse();
-            break;
-          }
-        }
-
-        // Move the entity to the edge of the collision target
-        if (targetOrieantation.includes('top')) {
-          position.y = collisionTarget.bounds.y2;
-        } else if (targetOrieantation.includes('bottom')) {
-          position.y = collisionTarget.bounds.y1 - size.height - 1;
-        }
-
-        if (targetOrieantation.includes('left')) {
-          position.x = collisionTarget.bounds.x2;
-        } else if (targetOrieantation.includes('right')) {
-          position.x = collisionTarget.bounds.x1 - size.width - 1;
-        }
-
-
-      } else {
-        // TODO investigate why this is happening
-        console.warn('Collision target orientation is null.')
-      }
-
+    // If entity is coliding with another entity don't move the entity
+    if (colidingEntity) {
+      collsisions.push({ entity, colidingEntity })
       return;
     }
 
@@ -159,4 +110,79 @@ export const moveEntities = (
       SOUNDS.HIT_EDGE.play();
     }
   });
+
+  handleCollisions(collsisions);
 };
+
+type Collision = {
+  entity: Entity;
+  colidingEntity: Entity;
+};
+
+const handleCollisions = (collisions: Collision[]): void => {
+  collisions.forEach(({ entity, colidingEntity }) => {
+    const position = entity.position;
+    const size = entity.size;
+    const velocity = entity.velocity;
+
+    if (!position || !size || !velocity) {
+      console.error("Handling collision for entity thats missing position, size or velocity.", entity);
+      throw new Error("Entity missing position, size or velocity.");
+    }
+
+    const colidingEntitySize = colidingEntity.size;
+
+    if (!colidingEntitySize) {
+      console.error("Handling collision for coliding entity thats missing size.", entity);
+      throw new Error("Entity missing size.");
+    }
+
+    if (entity.type === ENTITY.BALL) {
+      if (colidingEntity.type === ENTITY.PADDLE) {
+        SOUNDS.HIT_PADDLE.play();
+      } else {
+        SOUNDS.HIT_BLOCK.play();
+      }
+    }
+
+    const colidingEntityOrientation = calculateTargetEntityOrientation(entity, colidingEntity);
+    if (colidingEntityOrientation) {
+      // Reverse the velocity based on the orientation of the collision
+      switch (colidingEntityOrientation) {
+        case 'top':
+        case 'bottom': {
+          velocity.reverseY();
+          break;
+        }
+        case 'left':
+        case 'right': {
+          velocity.reverseX();
+          break;
+        }
+        case 'top-left':
+        case 'top-right':
+        case 'bottom-left':
+        case 'bottom-right': {
+          velocity.reverse();
+          break;
+        }
+      }
+
+      const targetCoordinates = colidingEntitySize.coordinates;
+      // Move the entity to the edge of the collision target
+      if (colidingEntityOrientation.includes('top')) {
+        position.y = targetCoordinates.y2;
+      } else if (colidingEntityOrientation.includes('bottom')) {
+        position.y = targetCoordinates.y1 - size.height - 1;
+      }
+
+      if (colidingEntityOrientation.includes('left')) {
+        position.x = targetCoordinates.x2;
+      } else if (colidingEntityOrientation.includes('right')) {
+        position.x = targetCoordinates.x1 - size.width - 1;
+      }
+    } else {
+      console.warn("No orientation found for collision.", entity, colidingEntity);
+    }
+  })
+}

@@ -17,9 +17,9 @@ export const isEntityIsInWorld = (
   return true;
 };
 
-export type EntityOrientation = 'top' | 'bottom' | 'left' | 'right' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | null;
+export type Orientation = 'top' | 'bottom' | 'left' | 'right' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | null;
 
-export const calculateEntityOrientation = (sourceEntity: Entity, targetEntity: Entity): EntityOrientation => {
+export const calculateTargetEntityOrientation = (sourceEntity: Entity, targetEntity: Entity): Orientation => {
   const sourceSize = sourceEntity.size;
   const targetSize = targetEntity.size;
 
@@ -53,15 +53,13 @@ export const calculateEntityOrientation = (sourceEntity: Entity, targetEntity: E
   return null;
 }
 
-export type CollisionTarget = { entity: Entity, bounds: { x1: number, x2: number, y1: number, y2: number } }
-
-export const calculateCollisionTarget = (entity: Entity, entities: Map<string, Entity>): null | CollisionTarget => {
+export const findColidingEntity = (entity: Entity, entities: Map<string, Entity>): null | Entity => {
   const size = entity.size;
   const velocity = entity.velocity;
 
   if (!size || !velocity) {
-    console.error("Calculating collision for entity thats missing  size, or velocity.", entity);
-    throw new Error("Entity missing  size, or velocity.");
+    console.error("Finging collisions for entity thats missing size, or velocity.", entity);
+    throw new Error("Entity missing size, or velocity.");
   }
 
   const nextCoordinates = size.nextCoordinates(velocity);
@@ -71,24 +69,21 @@ export const calculateCollisionTarget = (entity: Entity, entities: Map<string, E
     const otherEntity = entities.get(entityKeys[i]);
     if (!otherEntity) continue;
     if (entity.id === otherEntity.id) continue;
+    if (!otherEntity.collides) continue;
 
-    const collides = otherEntity.collides;
-    if (!collides) continue;
-
-    const otherPosition = otherEntity.position;
     const otherSize = otherEntity.size;
 
-    if (!otherPosition || !otherSize) {
-      console.error("Calculating collision for entity that's missing position or size.", otherEntity);
-      throw new Error("Entity missing position, or velocity.");
+    if (!otherSize) {
+      console.error("Finging collision for other entity that's missing size.", otherEntity);
+      throw new Error("Entity missing size.");
     }
 
-    const otherBounds = { x1: otherPosition.x, y1: otherPosition.y, x2: otherPosition.x + otherSize.width, y2: otherPosition.y + otherSize.height };
+    const otherCoordinates = otherSize.coordinates;
 
-    const overlapsX = nextCoordinates.x1 < otherBounds.x2 && nextCoordinates.x2 > otherBounds.x1;
-    const overlapsY = nextCoordinates.y1 < otherBounds.y2 && nextCoordinates.y2 > otherBounds.y1;
+    const overlapsX = nextCoordinates.x1 < otherCoordinates.x2 && nextCoordinates.x2 > otherCoordinates.x1;
+    const overlapsY = nextCoordinates.y1 < otherCoordinates.y2 && nextCoordinates.y2 > otherCoordinates.y1;
 
-    if (overlapsX && overlapsY) return { entity: otherEntity, bounds: otherBounds };
+    if (overlapsX && overlapsY) return otherEntity;
   }
 
   return null;

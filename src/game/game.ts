@@ -5,7 +5,6 @@ import {
   drawEntities,
   entities,
   Entity,
-  moveBall,
   moveEntities,
   Paddle,
   Position,
