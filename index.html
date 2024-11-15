@@ -1,72 +1,75 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <link rel="icon" type="image/svg+xml" href="/logo.svg" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Brick Breaker</title>
-    </head>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <body>
-        <div id="app" class="flex-column align-items-center">
-            <canvas id="canvas"></canvas>
+    <title>Brick Breaker</title>
 
-            <div id="controls" class="flex justify-content-center gap-16 p-8">
-                <button id="new-game-button" type="button">New game</button>
-                <button id="options-button" type="button">Options</button>
-                <button id="info-button" type="button">Info</button>
-            </div>
+    <link
+      href="https://static.design.if.eu/ids-style-css-helpers/18.26.0/css-helpers.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+  </head>
 
-            <dialog id="info-dialog" class="p-32">
-                <div
-                    class="flex justify-content-space-between align-items-center size-w-512 mb-16"
-                >
-                    <h1>Brick Breaker</h1>
-                    <button autofocus>Close</button>
-                </div>
+  <body>
+    <div id="app" class="if flex-column align-items-center">
+      <canvas id="canvas"></canvas>
 
-                <div>
-                    <p>Built with TypeScript, Vite and Deno 2.0</p>
-                    <a
-                        href="https://github.com/kputnins/brick-breaker"
-                        target="_blank"
-                    >
-                        Link to repo
-                    </a>
-                </div>
-            </dialog>
+      <div id="controls" class="if flex justify-content-center gap-16 p-8">
+        <button id="new-game-button" type="button">New game</button>
+        <button id="options-button" type="button">Options</button>
+        <button id="info-button" type="button">Info</button>
+      </div>
 
-            <dialog id="options-dialog" class="p-32">
-                <div
-                    class="flex justify-content-space-between align-items-center size-w-512 mb-32"
-                >
-                    <h1>Options</h1>
-                    <button autofocus>Close</button>
-                </div>
-                <div class="flex-column gap-16">
-                    <div class="flex justify-content-space-between">
-                        <label for="option-player-name">Player name</label>
-                        <input
-                            id="option-player-name"
-                            type="text"
-                            value="player"
-                        />
-                    </div>
-
-                    <div class="flex justify-content-space-between">
-                        <label for="option-resolution">Resolution</label>
-                        <select id="option-resolution">
-                            <option value="480p">480p</option>
-                            <option value="720p" selected="true">720p</option>
-                            <option value="1080p">1080p</option>
-                            <option value="1440p">1440p</option>
-                            <option value="2160p">2160p</option>
-                        </select>
-                    </div>
-                </div>
-            </dialog>
+      <dialog id="info-dialog" class="if p-32">
+        <div class="if flex justify-content-space-between align-items-center size-w-512 mb-16">
+          <h1>Brick Breaker</h1>
+          <button autofocus>Close</button>
         </div>
 
-        <script type="module" src="/src/main.ts"></script>
-    </body>
+        <div>
+          <p>Built with TypeScript, Vite and Deno 2.0</p>
+          <a
+            href="https://github.com/kputnins/brick-breaker"
+            target="_blank"
+          >
+            Link to repo
+          </a>
+        </div>
+      </dialog>
+
+      <dialog id="options-dialog" class="if p-32">
+        <div class="if flex justify-content-space-between align-items-center size-w-512 mb-32">
+          <h1>Options</h1>
+          <button autofocus>Close</button>
+        </div>
+        <div class="if flex-column gap-16">
+          <div class="if flex justify-content-space-between">
+            <label for="option-player-name">Player name</label>
+            <input
+              id="option-player-name"
+              type="text"
+              value="player"
+            />
+          </div>
+
+          <div class="if flex justify-content-space-between">
+            <label for="option-resolution">Resolution</label>
+            <select id="option-resolution">
+              <option value="480p">480p</option>
+              <option value="720p" selected="true">720p</option>
+              <option value="1080p">1080p</option>
+              <option value="1440p">1440p</option>
+              <option value="2160p">2160p</option>
+            </select>
+          </div>
+        </div>
+      </dialog>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
 </html>
