@@ -1,7 +1,9 @@
-import hitBlock from './assets/Click_Standard_00.mp3';
-import hitPaddle from './assets/Click_Standard_04.mp3';
-import hitEdge from './assets/Click_Standard_05.mp3';
-import loosaAllBalls from './assets/Click_Heavy_00.mp3';
+import * as hitBlock from "./assets/Click_Standard_00.mp3";
+import * as hitPaddle from "./assets/Click_Standard_04.mp3";
+import * as hitEdge from "./assets/Click_Standard_05.mp3";
+import * as loosaAllBalls from "./assets/Click_Heavy_00.mp3";
+
+type SoundSource = { default: string };
 
 class Sound {
   private channels: HTMLAudioElement[];
@@ -22,8 +24,8 @@ class Sound {
 }
 
 export const SOUNDS = {
-  HIT_BLOCK: new Sound(hitBlock),
-  HIT_PADDLE: new Sound(hitPaddle),
-  HIT_EDGE: new Sound(hitEdge),
-  LOOSE_ALL_BALLS: new Sound(loosaAllBalls, 0.2),
+  HIT_BLOCK: new Sound((hitBlock as SoundSource).default),
+  HIT_PADDLE: new Sound((hitPaddle as SoundSource).default),
+  HIT_EDGE: new Sound((hitEdge as SoundSource).default),
+  LOOSE_ALL_BALLS: new Sound((loosaAllBalls as SoundSource).default, 0.2),
 } as const;

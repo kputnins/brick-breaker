@@ -1,12 +1,15 @@
-import { Game } from "./game/game";
+import { Game } from "./game/game.ts";
 
 import "./styles/style.scss";
 import "./styles/helpers.scss";
 
+type ExtraGlobals = {
+  game: Game;
+};
+
 function main() {
   Game.startGame();
-  // @ts-expect-error - Expose game to global scope for debugging
-  globalThis.game = Game;
+  (globalThis as typeof globalThis & ExtraGlobals).game = Game;
 }
 
 main();

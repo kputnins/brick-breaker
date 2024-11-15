@@ -11,12 +11,12 @@ export const BALL_SIZE = {
   SMALL: 8,
   MEDIUM: 12,
   LARGE: 16,
-} as const
-export type BALL_SIZE = (typeof BALL_SIZE)[keyof typeof BALL_SIZE]
+} as const;
+export type BALL_SIZE = (typeof BALL_SIZE)[keyof typeof BALL_SIZE];
 
 export const PADDLE_SIZE = {
   SMALL: 80,
   MEDIUM: 160,
   LARGE: 240,
-} as const
-export type PADDLE_SIZE = (typeof PADDLE_SIZE)[keyof typeof PADDLE_SIZE]
+} as const;
+export type PADDLE_SIZE = (typeof PADDLE_SIZE)[keyof typeof PADDLE_SIZE];

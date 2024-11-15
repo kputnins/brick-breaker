@@ -1,10 +1,12 @@
-import { Game } from "../game/game";
-import { SOUNDS } from "../sounds";
-import { findColidingEntity, calculateTargetEntityOrientation, isEntityIsInWorld } from "../utils";
+import { Game } from "../game/game.ts";
+import { SOUNDS } from "../sounds/index.ts";
 import {
-  Size,
-} from "./components";
-import { ENTITY, Entity } from "./entities";
+  calculateTargetEntityOrientation,
+  findColidingEntity,
+  isEntityIsInWorld,
+} from "../utils/index.ts";
+import { Size } from "./components.ts";
+import { ENTITY, Entity } from "./entities.ts";
 
 export const drawEntities = (
   entities: Map<string, Entity>,
@@ -29,9 +31,7 @@ export const drawEntities = (
         size.width * scale,
         size.height * scale,
       );
-    }
-
-    // If no sprite is found, draw a gray rectangle with the entity's ID
+    } // If no sprite is found, draw a gray rectangle with the entity's ID
     else {
       context.fillStyle = "gray";
       context.fillRect(coordinates.x1, coordinates.y1, size.width, size.height);
@@ -58,12 +58,12 @@ export const moveEntities = (
     if (!position || !velocity || !size) return;
     if (!isEntityIsInWorld(size, worldSize)) return;
 
-    const nextCoordinates = size.nextCoordinates(velocity)
+    const nextCoordinates = size.nextCoordinates(velocity);
     const colidingEntity = findColidingEntity(entity, entities);
 
     // If entity is coliding with another entity don't move the entity
     if (colidingEntity) {
-      collsisions.push({ entity, colidingEntity })
+      collsisions.push({ entity, colidingEntity });
       return;
     }
 
@@ -104,7 +104,7 @@ export const moveEntities = (
         bouncedFromWall = true;
       }
     } else {
-      position.y += velocity.y
+      position.y += velocity.y;
     }
 
     if (entity.type === ENTITY.BALL && bouncedFromWall) {
@@ -127,7 +127,10 @@ const handleCollisions = (collisions: Collision[]): void => {
     const velocity = entity.velocity;
 
     if (!position || !size || !velocity) {
-      console.error("Handling collision for entity thats missing position, size or velocity.", entity);
+      console.error(
+        "Handling collision for entity thats missing position, size or velocity.",
+        entity,
+      );
       throw new Error("Entity missing position, size or velocity.");
     }
 
@@ -166,20 +169,20 @@ const handleCollisions = (collisions: Collision[]): void => {
     if (colidingEntityOrientation) {
       // Reverse the velocity based on the orientation of the collision
       switch (colidingEntityOrientation) {
-        case 'top':
-        case 'bottom': {
+        case "top":
+        case "bottom": {
           velocity.reverseY();
           break;
         }
-        case 'left':
-        case 'right': {
+        case "left":
+        case "right": {
           velocity.reverseX();
           break;
         }
-        case 'top-left':
-        case 'top-right':
-        case 'bottom-left':
-        case 'bottom-right': {
+        case "top-left":
+        case "top-right":
+        case "bottom-left":
+        case "bottom-right": {
           velocity.reverse();
           break;
         }
@@ -187,26 +190,26 @@ const handleCollisions = (collisions: Collision[]): void => {
 
       const targetCoordinates = colidingEntitySize.coordinates;
       // Move the entity to the edge of the collision target
-      if (colidingEntityOrientation.includes('top')) {
+      if (colidingEntityOrientation.includes("top")) {
         position.y = targetCoordinates.y2;
-      } else if (colidingEntityOrientation.includes('bottom')) {
+      } else if (colidingEntityOrientation.includes("bottom")) {
         position.y = targetCoordinates.y1 - size.height - 1;
       }
 
-      if (colidingEntityOrientation.includes('left')) {
+      if (colidingEntityOrientation.includes("left")) {
         position.x = targetCoordinates.x2;
-      } else if (colidingEntityOrientation.includes('right')) {
+      } else if (colidingEntityOrientation.includes("right")) {
         position.x = targetCoordinates.x1 - size.width - 1;
       }
     } else {
       console.warn("No orientation found for collision.", entity, colidingEntity);
     }
-  })
+  });
 };
 
 export const trackGameBalls = (
   entities: Map<string, Entity>,
-  worldSize: Size
+  worldSize: Size,
 ): void => {
   entities.forEach((entity) => {
     if (entity.type !== ENTITY.BALL) return;
@@ -227,9 +230,8 @@ export const trackGameBalls = (
   entities.forEach((entity) => {
     if (entity.type === ENTITY.BALL) {
       hasBalls = true;
-      return
-    };
-
+      return;
+    }
   });
 
   if (!hasBalls) {

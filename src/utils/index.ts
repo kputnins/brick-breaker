@@ -1,4 +1,4 @@
-import { Entity, Size } from "../ecs";
+import { Entity, Size } from "../ecs/index.ts";
 
 export const isEntityIsInWorld = (
   size: Size,
@@ -17,14 +17,30 @@ export const isEntityIsInWorld = (
   return true;
 };
 
-export type Orientation = 'top' | 'bottom' | 'left' | 'right' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | null;
+export type Orientation =
+  | "top"
+  | "bottom"
+  | "left"
+  | "right"
+  | "top-left"
+  | "top-right"
+  | "bottom-left"
+  | "bottom-right"
+  | null;
 
-export const calculateTargetEntityOrientation = (sourceEntity: Entity, targetEntity: Entity): Orientation => {
+export const calculateTargetEntityOrientation = (
+  sourceEntity: Entity,
+  targetEntity: Entity,
+): Orientation => {
   const sourceSize = sourceEntity.size;
   const targetSize = targetEntity.size;
 
   if (!sourceSize || !targetSize) {
-    console.error("Calculating orientation for entities missing position or size.", sourceEntity, targetEntity);
+    console.error(
+      "Calculating orientation for entities missing position or size.",
+      sourceEntity,
+      targetEntity,
+    );
     throw new Error("Entity missing position or size.");
   }
 
@@ -41,19 +57,22 @@ export const calculateTargetEntityOrientation = (sourceEntity: Entity, targetEnt
   if (sourceCoordinates.x2 < targetCoordinates.x1) isRight = true;
   if (sourceCoordinates.x1 >= targetCoordinates.x2) isLeft = true;
 
-  if (isTop && isLeft) return 'top-left';
-  if (isTop && isRight) return 'top-right';
-  if (isBottom && isLeft) return 'bottom-left';
-  if (isBottom && isRight) return 'bottom-right';
-  if (isTop) return 'top';
-  if (isBottom) return 'bottom';
-  if (isLeft) return 'left';
-  if (isRight) return 'right';
+  if (isTop && isLeft) return "top-left";
+  if (isTop && isRight) return "top-right";
+  if (isBottom && isLeft) return "bottom-left";
+  if (isBottom && isRight) return "bottom-right";
+  if (isTop) return "top";
+  if (isBottom) return "bottom";
+  if (isLeft) return "left";
+  if (isRight) return "right";
 
   return null;
-}
+};
 
-export const findColidingEntity = (entity: Entity, entities: Map<string, Entity>): null | Entity => {
+export const findColidingEntity = (
+  entity: Entity,
+  entities: Map<string, Entity>,
+): null | Entity => {
   const size = entity.size;
   const velocity = entity.velocity;
 
@@ -80,11 +99,13 @@ export const findColidingEntity = (entity: Entity, entities: Map<string, Entity>
 
     const otherCoordinates = otherSize.coordinates;
 
-    const overlapsX = nextCoordinates.x1 < otherCoordinates.x2 && nextCoordinates.x2 > otherCoordinates.x1;
-    const overlapsY = nextCoordinates.y1 < otherCoordinates.y2 && nextCoordinates.y2 > otherCoordinates.y1;
+    const overlapsX = nextCoordinates.x1 < otherCoordinates.x2 &&
+      nextCoordinates.x2 > otherCoordinates.x1;
+    const overlapsY = nextCoordinates.y1 < otherCoordinates.y2 &&
+      nextCoordinates.y2 > otherCoordinates.y1;
 
     if (overlapsX && overlapsY) return otherEntity;
   }
 
   return null;
-}
+};

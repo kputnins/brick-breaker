@@ -8,10 +8,10 @@ import {
   Size,
   Sprite,
   Velocity,
-} from "./components";
+} from "./components.ts";
 
-import { SPRITES } from "../sprites";
-import { Game } from "../game/game";
+import { SPRITES } from "../sprites/index.ts";
+import { Game } from "../game/game.ts";
 
 export const entities = new Map<string, Entity>();
 
@@ -56,7 +56,7 @@ export class Entity {
 }
 
 export class Paddle extends Entity {
-  constructor(params?: { size?: number, x?: number, y?: number }) {
+  constructor(params?: { size?: number; x?: number; y?: number }) {
     const size = params?.size ?? 100;
     const x = params?.x ?? 0;
     const y = params?.y ?? 0;
@@ -72,7 +72,7 @@ export class Paddle extends Entity {
 }
 
 export class Ball extends Entity {
-  constructor(params?: { x?: number, y?: number, size?: number, velocity?: number }) {
+  constructor(params?: { x?: number; y?: number; size?: number; velocity?: number }) {
     super(ENTITY.BALL);
 
     const size = params?.size ?? 12;
@@ -86,13 +86,15 @@ export class Ball extends Entity {
     this.clampToEdges = new ClampToEdges({ bottom: Game.isDemoMode() });
     this.bouncesFromEdges = new BouncesFromEdges({ bottom: Game.isDemoMode() });
     this.velocity = new Velocity(velocity, velocity / -3);
-    this.damage = new Damage()
+    this.damage = new Damage();
     this.sprite = new Sprite(SPRITES.BALL);
   }
 }
 
 export class Brick extends Entity {
-  constructor(params?: { x?: number, y?: number, width?: number, height?: number, health?: number }) {
+  constructor(
+    params?: { x?: number; y?: number; width?: number; height?: number; health?: number },
+  ) {
     super(ENTITY.BRICK);
 
     const x = params?.x ?? 0;

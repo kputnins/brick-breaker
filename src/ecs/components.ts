@@ -1,5 +1,3 @@
-import { Entity } from "./entities";
-
 export const COMPONENT = {
   POSITION: "POSITION",
   SIZE: "SIZE",

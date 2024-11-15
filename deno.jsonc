@@ -1,0 +1,30 @@
+{
+  "tasks": {
+    "vite": "deno run -A --node-modules-dir npm:vite",
+    "dev": "deno task vite",
+    "start": "deno task vite",
+    "build": "deno task vite build",
+    "preview": "deno task vite preview",
+    "lint": "deno lint",
+    "format": "demo fmt",
+    "check": "demo check src"
+  },
+  "imports": {
+    "sass-embedded": "npm:sass-embedded@^1.81.0",
+    "type-fest": "npm:type-fest@^4.27.0",
+    "vite": "npm:vite@^5.4.11"
+  },
+  "fmt": {
+    "lineWidth": 100,
+    "indentWidth": 2
+  },
+  "exclude": [
+    "dist/"
+  ],
+  "compilerOptions": {
+    "lib": [
+      "ES2020",
+      "dom"
+    ]
+  }
+}

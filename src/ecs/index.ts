@@ -1,3 +1,3 @@
-export * from "./components";
-export * from "./entities";
-export * from "./systems";
+export * from "./components.ts";
+export * from "./entities.ts";
+export * from "./systems.ts";

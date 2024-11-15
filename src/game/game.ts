@@ -1,4 +1,4 @@
-import { BALL_SIZE, PADDLE_SIZE, RESOLUTION } from "../constants";
+import { BALL_SIZE, PADDLE_SIZE, RESOLUTION } from "../constants/index.ts";
 import {
   Ball,
   Brick,
@@ -6,11 +6,11 @@ import {
   entities,
   Entity,
   moveEntities,
-  trackGameBalls,
   Paddle,
   Position,
   Size,
-} from "../ecs";
+  trackGameBalls,
+} from "../ecs/index.ts";
 
 declare global {
   interface Window {
@@ -193,7 +193,7 @@ export class Game {
   private static initLevel(level: number) {
     switch (level) {
       default:
-      case 1:
+      case 1: {
         const brickCount = 100;
         const columns = 10;
         // Create 10 columns of 5 rows of bricks
@@ -211,6 +211,7 @@ export class Game {
         });
 
         break;
+      }
     }
   }
 
@@ -229,7 +230,7 @@ export class Game {
       throw new Error("Failed to get paddle coordinates.");
     }
 
-    const paddleCenterX = paddeCoordiantes.x1 + (paddeCoordiantes.x2 - paddeCoordiantes.x1) / 2
+    const paddleCenterX = paddeCoordiantes.x1 + (paddeCoordiantes.x2 - paddeCoordiantes.x1) / 2;
 
     new Ball({
       size: this.state.ballSize,
@@ -251,8 +252,7 @@ export class Game {
 
   private static draw() {
     this.clearCanvas();
-    drawEntities(this.entities, this.canvas.context,
-      this.worldSize, this.resolution.scale);
+    drawEntities(this.entities, this.canvas.context, this.worldSize, this.resolution.scale);
 
     // Draw the current tick in the top left corner
     this.canvas.context.fillStyle = "white";
@@ -298,7 +298,7 @@ export class Game {
     if (this.controls.space === true) {
       if (this.state.ballAttachedToPaddle) {
         this.state.ballAttachedToPaddle = false;
-        this.entities.forEach(entity => {
+        this.entities.forEach((entity) => {
           if (entity instanceof Ball) {
             if (!entity.velocity) {
               throw new Error("Ball missing velocity.");
@@ -306,7 +306,7 @@ export class Game {
 
             entity.velocity.set(this.state.ballSpeed, -this.state.ballSpeed);
           }
-        })
+        });
       }
 
       // TODO - trigger powerups
@@ -335,7 +335,7 @@ export class Game {
     }
 
     if (this.state.ballAttachedToPaddle) {
-      this.entities.forEach(entity => {
+      this.entities.forEach((entity) => {
         if (entity instanceof Ball) {
           if (!entity.position || !entity.size) {
             throw new Error("Ball missing position or size.");
@@ -430,10 +430,10 @@ export class Game {
   };
 
   public static isDevMode(): boolean {
-    return window.location.hostname === "localhost";
+    return globalThis.location.hostname === "localhost";
   }
 
   public static isDemoMode(): boolean {
-    return window.location.search.includes("demo");
+    return globalThis.location.search.includes("demo");
   }
 }
